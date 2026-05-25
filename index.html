@@ -519,41 +519,33 @@ async function generate(){
     let targetKm = parseFloat(dr.value);
     if(S.unit==='mi') targetKm *= 1.60934;
 
-    // Step 1: calibrate the local road factor with a short test route.
-    // Send a point ~200m north and route back — gives us real road overhead for this area.
-    const testPoint = destPoint(origin.lat, origin.lon, 0.2, 0);
-    const testResult = await osrm(origin, [testPoint, [origin.lat, origin.lon]], S.act);
-    const testRoadKm = testResult.dist / 1000;
-    const testStraightKm = 0.4; // out 0.2km + back 0.2km straight line
-    // Road factor = how much longer roads are vs straight lines here
-    const roadFactor = Math.min(Math.max(testRoadKm / testStraightKm, 0.5), 2.0);
-
-    // Step 2: use calibrated factor to set leg length
-    // Each leg of the triangle = targetKm/3, adjusted for road overhead
-    const legKm = (targetKm / 3) / roadFactor;
-
     const randomBearing = Math.random() * 360;
 
-    function makeWaypoints(leg){
+    function makeWaypoints(legKm){
       if(S.loop){
-        return buildIsodistanceWaypoints(origin.lat, origin.lon, leg * 3, randomBearing);
+        return buildIsodistanceWaypoints(origin.lat, origin.lon, legKm * 3, randomBearing);
       } else {
-        const wp = destPoint(origin.lat, origin.lon, leg * 1.5, randomBearing);
+        const wp = destPoint(origin.lat, origin.lon, legKm * 1.5, randomBearing);
         return [wp, [origin.lat, origin.lon]];
       }
     }
 
-    // Step 3: first real attempt with calibrated leg length
-    let wpts = makeWaypoints(legKm);
-    let result = await osrm(origin, wpts, S.act);
-    const actualKm = result.dist / 1000;
-    const ratio = actualKm / targetKm;
+    // Binary search: find the straight-line leg length that produces
+    // a routed distance close to targetKm. Max 5 OSRM calls.
+    let lo = targetKm * 0.05;  // lower bound on leg
+    let hi = targetKm * 0.6;   // upper bound on leg
+    let result = null;
+    const TOLERANCE = 0.12; // accept within 12%
 
-    // Step 4: if still more than 15% off, do one precise correction
-    if(ratio < 0.85 || ratio > 1.15){
-      const correctedLeg = legKm / ratio;
-      wpts = makeWaypoints(correctedLeg);
-      result = await osrm(origin, wpts, S.act);
+    for(let i = 0; i < 5; i++){
+      const mid = (lo + hi) / 2;
+      result = await osrm(origin, makeWaypoints(mid), S.act);
+      const actualKm = result.dist / 1000;
+      const err = (actualKm - targetKm) / targetKm;
+      if(Math.abs(err) < TOLERANCE) break;
+      // If route is too long, shrink leg; if too short, grow leg
+      if(actualKm > targetKm) hi = mid;
+      else lo = mid;
     }
 
     S.coords = result.coords;
