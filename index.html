@@ -5,6 +5,705 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>RouteDrop</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --acc:#0ABAB5;--acc2:#5f45f5;--red:#e63030;
+  /* dark mode (default) */
+  --bg:#0f0f13;--surf:#18181f;--surf2:#22222c;--bdr:#2e2e3a;
+  --txt:#f0f0f8;--mut:#6b6b88;
+  --acc-txt:#0a0a0f;
+  --input-bg:#22222c;
+  --tog-off:#2e2e3a;--tog-knob-off:#6b6b88;
+}
+@media(prefers-color-scheme:light){
+  :root{
+    --bg:#f5f5f7;--surf:#ffffff;--surf2:#f0f0f3;--bdr:#e0e0e8;
+    --txt:#111118;--mut:#888899;
+    --acc-txt:#ffffff;
+    --input-bg:#f0f0f3;
+    --tog-off:#d0d0dc;--tog-knob-off:#aaaabc;
+  }
+}
+html,body{height:100%;font-family:'Outfit','DM Sans',sans-serif;background:var(--bg);color:var(--txt);overflow:hidden}
+#app{display:flex;flex-direction:column;height:100dvh}
+
+/* HEADER */
+header{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 16px;background:var(--surf);
+  border-bottom:1px solid var(--bdr);flex-shrink:0;z-index:10;
+}
+.logo{font-size:1.1rem;font-weight:800;letter-spacing:-.03em;display:flex;align-items:center;gap:8px;font-family:'Outfit',sans-serif}
+.dot{width:8px;height:8px;background:var(--acc);border-radius:50%;animation:pulse 2s ease-in-out infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.5);opacity:.5}}
+.htag{margin-left:auto;font-size:.58rem;color:var(--mut);letter-spacing:.15em;text-transform:uppercase;font-family:'DM Mono',monospace}
+
+/* LAYOUT */
+#body{display:flex;flex:1;overflow:hidden}
+#sidebar{width:100%;overflow-y:auto;display:flex;flex-direction:column;background:var(--surf);flex-shrink:0}
+#mapwrap{flex:1;position:relative;display:none}
+@media(min-width:700px){
+  #sidebar{width:320px;border-right:1px solid var(--bdr)}
+  #mapwrap{display:block!important}
+}
+
+/* SECTIONS */
+.sec{padding:16px;border-bottom:1px solid var(--bdr)}
+.lbl{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);margin-bottom:8px;font-family:'DM Mono',monospace}
+
+/* ACTIVITY PILLS */
+.pills{display:flex;gap:6px}
+.pill{
+  flex:1;padding:8px 4px;border:1px solid var(--bdr);border-radius:6px;
+  background:var(--surf2);color:var(--mut);font-family:inherit;font-size:.7rem;
+  cursor:pointer;text-align:center;transition:all .15s;
+}
+.pill.on{background:var(--acc);color:var(--acc-txt);border-color:var(--acc);font-weight:700}
+
+/* INPUTS */
+.ac-wrap{position:relative}
+input[type=text]{
+  width:100%;background:var(--input-bg);border:1px solid var(--bdr);
+  color:var(--txt);font-family:inherit;font-size:.82rem;
+  padding:10px 12px;border-radius:6px;outline:none;-webkit-appearance:none;
+}
+input[type=text]:focus{border-color:var(--acc)}
+
+/* AUTOCOMPLETE */
+#ac-list{
+  position:absolute;top:100%;left:0;right:0;z-index:500;
+  background:var(--surf2);border:1px solid var(--acc);border-top:none;
+  border-radius:0 0 6px 6px;max-height:200px;overflow-y:auto;display:none;
+}
+.ac-item{padding:10px 12px;font-size:.78rem;cursor:pointer;border-bottom:1px solid var(--bdr);line-height:1.3}
+.ac-item:last-child{border-bottom:none}
+.ac-item:hover,.ac-item.focused{background:var(--bdr);color:var(--acc)}
+.ac-item strong{color:var(--acc)}
+
+/* DISTANCE */
+.dist-big{font-size:2rem;font-weight:800;color:var(--acc);letter-spacing:-.03em;margin-bottom:6px;font-family:'Outfit',sans-serif}
+.dist-big small{font-size:.85rem;color:var(--mut);font-weight:400}
+input[type=range]{
+  width:100%;accent-color:var(--acc);cursor:pointer;
+  height:4px;-webkit-appearance:none;appearance:none;
+  background:var(--bdr);border-radius:2px;outline:none;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:20px;height:20px;
+  background:var(--acc);border-radius:50%;cursor:pointer;
+}
+.rl{display:flex;justify-content:space-between;font-size:.6rem;color:var(--mut);margin-top:4px}
+.unit-row{display:flex;gap:6px;align-items:center;margin-top:10px}
+.unit-row span{font-size:.7rem;color:var(--mut)}
+
+/* TOGGLES */
+.tog-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 12px;background:var(--surf2);border:1px solid var(--bdr);
+  border-radius:6px;cursor:pointer;margin-bottom:7px;font-size:.78rem;
+}
+.tog{width:36px;height:20px;background:var(--tog-off);border-radius:10px;position:relative;transition:background .2s;flex-shrink:0}
+.tog::after{content:'';position:absolute;width:14px;height:14px;background:var(--tog-knob-off);border-radius:50%;top:3px;left:3px;transition:all .2s}
+.tog.on{background:var(--acc)}
+.tog.on::after{left:19px;background:var(--acc-txt)}
+
+/* GENERATE */
+.btn-gen{
+  width:100%;padding:14px;background:var(--acc);color:var(--acc-txt);
+  font-family:inherit;font-weight:800;font-size:.88rem;letter-spacing:.06em;
+  border:none;border-radius:8px;cursor:pointer;text-transform:uppercase;
+  display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s;
+}
+.btn-gen:disabled{opacity:.35;cursor:not-allowed}
+.spinner{width:15px;height:15px;border:2px solid #0a0a0f;border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+.stat{background:var(--surf2);border:1px solid var(--bdr);border-radius:6px;padding:9px 11px}
+.stat-l{font-size:.55rem;color:var(--mut);letter-spacing:.12em;text-transform:uppercase;margin-bottom:2px;font-family:'DM Mono',monospace}
+.stat-v{font-size:1rem;font-weight:800;color:var(--acc);font-family:'Outfit',sans-serif}
+
+/* EXPORT */
+.exp-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.btn-exp{
+  padding:9px 8px;background:var(--surf2);border:1px solid var(--bdr);
+  border-radius:6px;color:var(--txt);font-family:inherit;font-size:.68rem;
+  cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s;
+}
+.btn-exp:active{border-color:var(--acc);color:var(--acc)}
+.btn-exp.full{grid-column:span 2;justify-content:center}
+
+/* SAVE */
+.save-row{display:flex;gap:7px;margin-bottom:10px}
+.save-row input{flex:1}
+.btn-save{padding:10px 12px;background:var(--acc);border:none;border-radius:6px;color:var(--acc-txt);font-family:inherit;font-size:.7rem;cursor:pointer;white-space:nowrap}
+
+/* FAVORITES */
+.fav{display:flex;align-items:center;gap:9px;background:var(--surf2);border:1px solid var(--bdr);border-radius:6px;padding:9px 11px;margin-bottom:6px;cursor:pointer}
+.fav-info{flex:1;min-width:0}
+.fav-name{font-size:.76rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fav-meta{font-size:.6rem;color:var(--mut);margin-top:2px}
+.fav-del{background:none;border:none;color:var(--mut);cursor:pointer;font-size:.78rem;padding:4px}
+.empty{font-size:.7rem;color:var(--mut);text-align:center;padding:10px 0}
+
+/* MOBILE MAP BTN */
+.map-btn{
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  width:100%;padding:12px;background:var(--surf2);border:1px solid var(--bdr);
+  border-radius:8px;color:var(--txt);font-family:inherit;font-size:.78rem;cursor:pointer;margin-bottom:12px;
+}
+@media(min-width:700px){.map-btn{display:none}}
+
+/* MOBILE MAP PANEL */
+#mobile-map{position:fixed;inset:0;background:var(--bg);z-index:200;display:none;flex-direction:column}
+#mobile-map.show{display:flex}
+.map-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surf);border-bottom:1px solid var(--bdr)}
+.map-header h2{font-size:.88rem;font-weight:700}
+.btn-close{background:none;border:1px solid var(--bdr);border-radius:6px;color:var(--txt);font-family:inherit;font-size:.75rem;padding:6px 11px;cursor:pointer}
+#mobile-map-inner{flex:1;position:relative}
+#mobile-leaflet{width:100%;height:100%}
+
+/* MAP PLACEHOLDER */
+#map-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;pointer-events:none;background:var(--bg);transition:background .2s}
+#map-placeholder span{font-size:2.5rem;opacity:.2}
+#map-placeholder p{color:var(--mut);font-size:.82rem;text-align:center;padding:0 20px}
+#desktop-leaflet{width:100%;height:100%}
+
+/* LEAFLET OVERRIDES */
+@media(prefers-color-scheme:light){
+  .leaflet-control-zoom a{background:#fff!important;color:#333!important;border-color:#ddd!important}
+  .leaflet-control-attribution{background:rgba(255,255,255,.85)!important;color:#666!important}
+}
+.leaflet-control-zoom a{background:var(--surf)!important;color:var(--txt)!important;border-color:var(--bdr)!important}
+.leaflet-control-attribution{background:rgba(15,15,19,.8)!important;color:var(--mut)!important;font-size:9px!important}
+.leaflet-control-attribution a{color:var(--mut)!important}
+
+/* TOAST */
+#toast{
+  position:fixed;bottom:18px;right:14px;left:14px;z-index:9999;
+  background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;
+  padding:10px 15px;font-size:.76rem;
+  transform:translateY(80px);opacity:0;transition:all .3s ease;
+  pointer-events:none;text-align:center;
+}
+#toast.show{transform:translateY(0);opacity:1}
+#toast.ok{border-color:var(--acc)}
+#toast.err{border-color:var(--red)}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="logo"><div class="dot"></div>RouteDrop</div>
+    <span class="htag">Route Generator</span>
+  </header>
+
+  <div id="body">
+    <div id="sidebar">
+
+      <div class="sec">
+        <div class="lbl">Activity</div>
+        <div class="pills">
+          <button class="pill on" data-act="running">🏃 Run</button>
+          <button class="pill" data-act="walking">🚶 Walk</button>
+          <button class="pill" data-act="cycling">🚴 Cycle</button>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="lbl">Starting Point</div>
+        <div class="ac-wrap">
+          <input type="text" id="loc" placeholder="Address or place name" autocomplete="off" autocorrect="off" spellcheck="false"/>
+          <div id="ac-list"></div>
+        </div>
+
+        <div class="lbl" style="margin-top:16px">Distance</div>
+        <div class="dist-big"><span id="dv">3</span> <small id="ul">mi</small></div>
+        <input type="range" id="dr" min="0.5" max="20" value="3" step="0.5"/>
+        <div class="rl"><span>0.5</span><span>20</span></div>
+        <div class="unit-row">
+          <span>Unit:</span>
+          <button class="pill" id="u-km" onclick="setUnit('km')" style="flex:unset;padding:5px 14px">km</button>
+          <button class="pill on" id="u-mi" onclick="setUnit('mi')" style="flex:unset;padding:5px 14px">mi</button>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="lbl">Options</div>
+        <div class="tog-row" onclick="toggle('loop')"><span>🔁 Loop route</span><div class="tog on" id="t-loop"></div></div>
+        <div class="tog-row" onclick="toggle('hills')"><span>⛰️ Avoid hills</span><div class="tog" id="t-hills"></div></div>
+      </div>
+
+      <div class="sec">
+        <button class="btn-gen" id="btn-gen" onclick="generate()">
+          <div class="spinner" id="spin"></div>
+          <span id="btn-txt">⚡ Generate Route</span>
+        </button>
+      </div>
+
+      <div class="sec" id="results" style="display:none">
+        <div class="lbl">Route Stats</div>
+        <div class="stats">
+          <div class="stat"><div class="stat-l">Distance</div><div class="stat-v" id="s-dist">—</div></div>
+          <div class="stat"><div class="stat-l">Est. Time</div><div class="stat-v" id="s-time">—</div></div>
+          <div class="stat"><div class="stat-l">Points</div><div class="stat-v" id="s-pts">—</div></div>
+          <div class="stat"><div class="stat-l">Type</div><div class="stat-v" id="s-type">—</div></div>
+        </div>
+
+        <button class="map-btn" onclick="showMobileMap()">🗺️ View Route Map</button>
+
+        <div class="lbl">Export</div>
+        <div class="exp-grid">
+          <button class="btn-exp" onclick="expGoogle()">🗺️ Google Maps</button>
+          <button class="btn-exp" onclick="expGPX()">📥 GPX File</button>
+          <button class="btn-exp" onclick="expGarmin()">⌚ Garmin TCX</button>
+          <button class="btn-exp full" onclick="copyLink()">🔗 Copy Share Link</button>
+        </div>
+      </div>
+
+      <div class="sec" id="save-sec" style="display:none">
+        <div class="save-row">
+          <input type="text" id="sname" placeholder="Route name..."/>
+          <button class="btn-save" onclick="saveRoute()">Save ★</button>
+        </div>
+      </div>
+
+      <div class="sec" style="flex:1;padding-bottom:30px">
+        <div class="lbl">Saved Routes</div>
+        <div id="favs"><div class="empty">No saved routes yet.</div></div>
+      </div>
+
+    </div>
+
+    <div id="mapwrap">
+      <div id="desktop-leaflet"></div>
+      <div id="map-placeholder"><span>🗺️</span><p>Enter a location &amp; generate a route</p></div>
+    </div>
+  </div>
+</div>
+
+<div id="mobile-map">
+  <div class="map-header">
+    <h2>Route Map</h2>
+    <button class="btn-close" onclick="hideMobileMap()">✕ Close</button>
+  </div>
+  <div id="mobile-map-inner">
+    <div id="mobile-leaflet"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────
+const S = {
+  act:'running', unit:'mi', loop:true, hills:false,
+  coords:null, meta:null, pickedLocation:null,
+  favs:(()=>{try{return JSON.parse(localStorage.getItem('rd_favs')||'[]')}catch{return[]}})()
+};
+
+// ── Maps ───────────────────────────────────────────────────────────────
+const TILE='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+const TILE_OPTS={attribution:'© <a href="https://openstreetmap.org">OSM</a>',maxZoom:19};
+
+const dmap=L.map('desktop-leaflet',{zoomControl:true}).setView([40.75,-73.99],13);
+L.tileLayer(TILE,TILE_OPTS).addTo(dmap);
+let mmap=null;
+
+let dLayer=null,dMarker=null,dArrows=[];
+let mLayer=null,mMarker=null,mArrows=[];
+
+// ── Arrow drawing ──────────────────────────────────────────────────────
+function bearing(la1,lo1,la2,lo2){
+  const dy=la2-la1,dx=(lo2-lo1)*Math.cos(la1*Math.PI/180);
+  return Math.atan2(dx,dy)*180/Math.PI;
+}
+function angleDiff(a,b){let d=Math.abs(a-b)%360;return d>180?360-d:d}
+
+function arrowIcon(b){
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  return L.divIcon({
+    html:`<svg width="14" height="16" viewBox="0 0 14 16" style="transform:rotate(${b}deg)" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M7 0L14 16H0L7 0Z" fill="${isDark?'#1a1a1a':'#ffffff'}" stroke="${isDark?'#ffffff':'#333333'}" stroke-width="1.5"/>
+    </svg>`,
+    className:'',iconSize:[14,16],iconAnchor:[7,8]
+  });
+}
+
+function addArrows(map,coords,store){
+  store.arr.forEach(a=>map.removeLayer(a));
+  store.arr=[];
+  const n=coords.length;
+  // Minimum spacing scales with route length — more zoom = more arrows (handled by Leaflet zoom)
+  // We place ~8-12 arrows total, only on straight segments
+  const minGap=Math.max(6,Math.floor(n/12));
+  const maxTurn=20; // degrees — skip anything that's turning
+  let last=-minGap;
+  for(let i=4;i<n-4;i++){
+    if(i-last<minGap) continue;
+    const b1=bearing(...coords[i-2],...coords[i]);
+    const b2=bearing(...coords[i],...coords[i+2]);
+    if(angleDiff(b1,b2)>maxTurn) continue;
+    const b=bearing(...coords[i-3],...coords[i+3]);
+    store.arr.push(L.marker(coords[i],{icon:arrowIcon(b),interactive:false,zIndexOffset:-100}).addTo(map));
+    last=i;
+  }
+}
+
+function drawLeaflet(map,coords,origin,isNew,store){
+  if(store.line) map.removeLayer(store.line);
+  if(store.marker) map.removeLayer(store.marker);
+
+  store.line=L.polyline(coords,{color:'#e63030',weight:4,opacity:.95,lineCap:'round',lineJoin:'round'}).addTo(map);
+
+  const startIcon=L.divIcon({
+    html:`<div style="width:14px;height:14px;background:#e63030;border-radius:50%;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)"></div>`,
+    className:'',iconSize:[14,14],iconAnchor:[7,7]
+  });
+  store.marker=L.marker([origin.lat,origin.lon],{icon:startIcon}).addTo(map);
+
+  addArrows(map,coords,store);
+  if(isNew) map.fitBounds(store.line.getBounds(),{padding:[28,28]});
+}
+
+const dStore={line:null,marker:null,arr:[]};
+const mStore={line:null,marker:null,arr:[]};
+
+function drawBoth(isNew=true){
+  if(!S.coords||!S.meta) return;
+  drawLeaflet(dmap,S.coords,S.meta.origin,isNew,dStore);
+  if(mmap) drawLeaflet(mmap,S.coords,S.meta.origin,isNew,mStore);
+}
+
+// ── Mobile map ─────────────────────────────────────────────────────────
+function showMobileMap(){
+  document.getElementById('mobile-map').classList.add('show');
+  if(!mmap){
+    mmap=L.map('mobile-leaflet',{zoomControl:true}).setView([40.75,-73.99],13);
+    L.tileLayer(TILE,TILE_OPTS).addTo(mmap);
+  }
+  setTimeout(()=>{
+    mmap.invalidateSize();
+    if(S.coords) drawLeaflet(mmap,S.coords,S.meta.origin,true,mStore);
+  },100);
+}
+function hideMobileMap(){document.getElementById('mobile-map').classList.remove('show')}
+
+// ── Activity ───────────────────────────────────────────────────────────
+document.querySelectorAll('[data-act]').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('[data-act]').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on'); S.act=b.dataset.act;
+  });
+});
+
+// ── Slider ─────────────────────────────────────────────────────────────
+const dr=document.getElementById('dr');
+dr.addEventListener('input',()=>document.getElementById('dv').textContent=dr.value);
+
+function setUnit(u){
+  S.unit=u;
+  document.getElementById('u-km').classList.toggle('on',u==='km');
+  document.getElementById('u-mi').classList.toggle('on',u==='mi');
+  document.getElementById('ul').textContent=u;
+}
+
+// ── Toggles ────────────────────────────────────────────────────────────
+const tog={loop:true,hills:false};
+function toggle(k){
+  tog[k]=!tog[k];
+  document.getElementById('t-'+k).classList.toggle('on',tog[k]);
+  if(k==='loop') S.loop=tog[k]; else S.hills=tog[k];
+}
+
+// ── Autocomplete ───────────────────────────────────────────────────────
+const locInput=document.getElementById('loc');
+const acList=document.getElementById('ac-list');
+let acTimer,acFocused=-1,acResults=[];
+
+locInput.addEventListener('input',()=>{
+  const q=locInput.value.trim();
+  S.pickedLocation=null;
+  if(q.length<3){hideAC();return;}
+  clearTimeout(acTimer);
+  acTimer=setTimeout(()=>fetchAC(q),280);
+});
+locInput.addEventListener('keydown',e=>{
+  if(!acResults.length){if(e.key==='Enter')generate();return;}
+  if(e.key==='ArrowDown'){e.preventDefault();setFocus(acFocused+1);}
+  else if(e.key==='ArrowUp'){e.preventDefault();setFocus(acFocused-1);}
+  else if(e.key==='Enter'){e.preventDefault();if(acFocused>=0)pickAC(acFocused);else generate();}
+  else if(e.key==='Escape')hideAC();
+});
+locInput.addEventListener('blur',()=>setTimeout(hideAC,150));
+
+async function fetchAC(q){
+  try{
+    const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5`,{headers:{'Accept-Language':'en'}});
+    acResults=await r.json();
+    renderAC(q);
+  }catch{hideAC();}
+}
+function renderAC(query){
+  if(!acResults.length){hideAC();return;}
+  acFocused=-1;
+  acList.innerHTML=acResults.map((r,i)=>{
+    const name=r.display_name;
+    const idx=name.toLowerCase().indexOf(query.toLowerCase());
+    let d=idx>=0?name.slice(0,idx)+'<strong>'+name.slice(idx,idx+query.length)+'</strong>'+name.slice(idx+query.length):name;
+    if(d.length>90)d=d.slice(0,90)+'…';
+    return `<div class="ac-item" data-i="${i}">${d}</div>`;
+  }).join('');
+  acList.style.display='block';
+  acList.querySelectorAll('.ac-item').forEach(el=>{
+    el.addEventListener('mousedown',e=>{e.preventDefault();pickAC(+el.dataset.i);});
+  });
+}
+function setFocus(i){
+  const items=acList.querySelectorAll('.ac-item');
+  if(!items.length)return;
+  acFocused=Math.max(-1,Math.min(items.length-1,i));
+  items.forEach((el,j)=>el.classList.toggle('focused',j===acFocused));
+}
+function pickAC(i){
+  const r=acResults[i];
+  S.pickedLocation={lat:+r.lat,lon:+r.lon,name:r.display_name};
+  locInput.value=r.display_name.split(',').slice(0,2).join(',');
+  hideAC();
+}
+function hideAC(){acList.style.display='none';acResults=[];acFocused=-1;}
+
+// ── Geocode ────────────────────────────────────────────────────────────
+async function resolveLocation(){
+  if(S.pickedLocation)return S.pickedLocation;
+  const q=locInput.value.trim();
+  const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=1`,{headers:{'Accept-Language':'en'}});
+  const d=await r.json();
+  if(!d.length)throw new Error('Location not found — try a city or address');
+  return{lat:+d[0].lat,lon:+d[0].lon,name:d[0].display_name};
+}
+
+// ── Route generation ───────────────────────────────────────────────────
+const toRad=d=>d*Math.PI/180,toDeg=r=>r*180/Math.PI,RE=6371;
+
+// Move a point by (distKm) in (bearingDeg) direction
+function destPoint(lat,lon,distKm,bearingDeg){
+  const b=toRad(bearingDeg);
+  const la1=toRad(lat),lo1=toRad(lon);
+  const d=distKm/RE;
+  const la2=Math.asin(Math.sin(la1)*Math.cos(d)+Math.cos(la1)*Math.sin(d)*Math.cos(b));
+  const lo2=lo1+Math.atan2(Math.sin(b)*Math.sin(d)*Math.cos(la1),Math.cos(d)-Math.sin(la1)*Math.sin(la2));
+  return[toDeg(la2),toDeg(lo2)];
+}
+
+// Straight-line distance between two lat/lon points (km)
+function distKm(la1,lo1,la2,lo2){
+  const dLa=toRad(la2-la1),dLo=toRad(lo2-lo1);
+  const a=Math.sin(dLa/2)**2+Math.cos(toRad(la1))*Math.cos(toRad(la2))*Math.sin(dLo/2)**2;
+  return RE*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+// Freeshuffle isodistance algorithm:
+// Place 3 points so all legs are ~equal, forming a clean triangle loop
+function buildIsodistanceWaypoints(lat, lon, targetKm, bearing1){
+  // bearing1 is passed in so retries use the same direction
+  const legKm = targetKm / 3;
+  const wp2 = destPoint(lat, lon, legKm, bearing1);
+  // Turn ~60° for an equilateral-ish triangle, small fixed jitter baked in at call site
+  const bearing2 = bearing1 + 60 + (Math.random() * 30 - 15);
+  const wp3 = destPoint(wp2[0], wp2[1], legKm, bearing2);
+  return [wp2, wp3, [lat, lon]];
+}
+
+
+async function osrm(origin, wpts, act){
+  const profile = act==='cycling' ? 'bike' : 'foot';
+  const all = [[origin.lon,origin.lat], ...wpts.map(([la,lo])=>[lo,la])];
+  const url = `https://router.project-osrm.org/route/v1/${profile}/${all.map(c=>c.join(',')).join(';')}?overview=full&geometries=geojson`;
+  const r = await fetch(url);
+  const d = await r.json();
+  if(d.code!=='Ok') throw new Error('Routing failed — try a different location');
+  const rt = d.routes[0];
+  return{coords:rt.geometry.coordinates.map(([lo,la])=>[la,lo]),dist:rt.distance,dur:rt.duration};
+}
+
+async function generate(){
+  if(!locInput.value.trim()){toast('Enter a starting location','err');return;}
+  setLoading(true);
+  try{
+    const origin = await resolveLocation();
+    let targetKm = parseFloat(dr.value);
+    if(S.unit==='mi') targetKm *= 1.60934;
+
+    const randomBearing = Math.random() * 360;
+
+    function makeWaypoints(legKm){
+      if(S.loop){
+        return buildIsodistanceWaypoints(origin.lat, origin.lon, legKm * 3, randomBearing);
+      } else {
+        const wp = destPoint(origin.lat, origin.lon, legKm * 1.5, randomBearing);
+        return [wp, [origin.lat, origin.lon]];
+      }
+    }
+
+    // Binary search: find the straight-line leg length that produces
+    // a routed distance close to targetKm. Max 5 OSRM calls.
+    let lo = targetKm * 0.05;  // lower bound on leg
+    let hi = targetKm * 0.6;   // upper bound on leg
+    let result = null;
+    const TOLERANCE = 0.12; // accept within 12%
+
+    for(let i = 0; i < 5; i++){
+      const mid = (lo + hi) / 2;
+      result = await osrm(origin, makeWaypoints(mid), S.act);
+      const actualKm = result.dist / 1000;
+      const err = (actualKm - targetKm) / targetKm;
+      if(Math.abs(err) < TOLERANCE) break;
+      // If route is too long, shrink leg; if too short, grow leg
+      if(actualKm > targetKm) hi = mid;
+      else lo = mid;
+    }
+
+    S.coords = result.coords;
+    S.meta = {origin, dist:result.dist, dur:result.dur, act:S.act, loop:S.loop, unit:S.unit, targetKm};
+    drawBoth(true);
+    updateStats();
+    document.getElementById('results').style.display='';
+    document.getElementById('save-sec').style.display='';
+    document.getElementById('map-placeholder').style.display='none';
+    toast('Route generated!','ok');
+  }catch(e){toast(e.message,'err');}
+  finally{setLoading(false);}
+}
+
+// ── Stats ──────────────────────────────────────────────────────────────
+const PACE={walking:20,running:10,cycling:4};
+function updateStats(){
+  const m=S.meta;
+  // Show actual routed distance (accurate), not target
+  const distMi=m.dist/1609.34,distKm=m.dist/1000;
+  document.getElementById('s-dist').textContent=m.unit==='km'?distKm.toFixed(2)+' km':distMi.toFixed(2)+' mi';
+  // Time based on actual distance + realistic pace
+  const mins=Math.round(distMi*(PACE[m.act]||10));
+  document.getElementById('s-time').textContent=mins>=60?`${Math.floor(mins/60)}h ${mins%60}m`:`${mins}m`;
+  document.getElementById('s-pts').textContent=S.coords.length;
+  document.getElementById('s-type').textContent=m.loop?'Loop':'Out-back';
+}
+
+// ── Exports ────────────────────────────────────────────────────────────
+function expGoogle(){
+  const o=S.meta.origin;
+  const n=S.coords.length;
+  const step=Math.max(1,Math.floor(n/9));
+  const samp=S.coords.filter((_,i)=>i%step===0).slice(0,10);
+  const mid=samp.slice(1,-1).map(([la,lo])=>`${la},${lo}`).join('/');
+  const d=samp[samp.length-1];
+  let url=`https://www.google.com/maps/dir/${o.lat},${o.lon}`;
+  if(mid)url+='/'+mid;
+  url+=`/${d[0]},${d[1]}`;
+  window.open(url,'_blank');
+}
+
+function dl(c,n,m){const b=new Blob([c],{type:m}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=n;a.click()}
+
+function expGPX(){
+  let s=`<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="RouteDrop" xmlns="http://www.topografix.com/GPX/1/1">\n  <trk><name>RouteDrop ${S.meta.act}</name><trkseg>\n`;
+  S.coords.forEach(([la,lo])=>{s+=`    <trkpt lat="${la}" lon="${lo}"></trkpt>\n`;});
+  s+=`  </trkseg></trk>\n</gpx>`;
+  dl(s,`routedrop-${Date.now()}.gpx`,'application/gpx+xml');
+  toast('GPX saved — import to Strava, Komoot, etc.','ok');
+}
+
+function expGarmin(){
+  const now=new Date().toISOString();
+  const sp=S.meta.act==='cycling'?'Biking':S.meta.act==='running'?'Running':'Walking';
+  const distM=S.meta.dist;
+  const totalSecs=Math.round((distM/1609.34)*(PACE[S.meta.act]||10)*60);
+  let s=`<?xml version="1.0" encoding="UTF-8"?>\n<TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd">\n  <Activities>\n    <Activity Sport="${sp}">\n      <Id>${now}</Id>\n      <Lap StartTime="${now}">\n        <TotalTimeSeconds>${totalSecs}</TotalTimeSeconds>\n        <DistanceMeters>${distM.toFixed(1)}</DistanceMeters>\n        <Intensity>Active</Intensity>\n        <TriggerMethod>Manual</TriggerMethod>\n        <Track>\n`;
+  const interval=totalSecs/Math.max(1,S.coords.length-1);
+  S.coords.forEach(([la,lo],i)=>{
+    const t=new Date(new Date(now).getTime()+i*interval*1000).toISOString();
+    s+=`          <Trackpoint><Time>${t}</Time><Position><LatitudeDegrees>${la}</LatitudeDegrees><LongitudeDegrees>${lo}</LongitudeDegrees></Position></Trackpoint>\n`;
+  });
+  s+=`        </Track>\n      </Lap>\n    </Activity>\n  </Activities>\n</TrainingCenterDatabase>`;
+  dl(s,`routedrop-${Date.now()}.tcx`,'application/xml');
+  toast('TCX saved — import via Garmin Connect','ok');
+}
+
+function copyLink(){
+  const pts=S.coords.map(([la,lo])=>`${la.toFixed(5)},${lo.toFixed(5)}`).join(';');
+  const link=`${location.href.split('?')[0]}?pts=${encodeURIComponent(pts.slice(0,1500))}`;
+  navigator.clipboard?.writeText(link).then(()=>toast('Link copied!','ok')).catch(()=>prompt('Copy:',link));
+}
+
+// ── Favorites ──────────────────────────────────────────────────────────
+function saveRoute(){
+  const name=document.getElementById('sname').value.trim()||`Route ${S.favs.length+1}`;
+  S.favs.unshift({id:Date.now(),name,coords:S.coords,meta:S.meta});
+  try{localStorage.setItem('rd_favs',JSON.stringify(S.favs))}catch{}
+  document.getElementById('sname').value='';
+  renderFavs();toast(`"${name}" saved!`,'ok');
+}
+function loadFav(f){
+  S.coords=f.coords;S.meta=f.meta;
+  drawBoth(true);updateStats();
+  document.getElementById('results').style.display='';
+  document.getElementById('save-sec').style.display='';
+  document.getElementById('map-placeholder').style.display='none';
+  toast(`Loaded "${f.name}"`,'ok');
+}
+function delFav(id){
+  S.favs=S.favs.filter(f=>f.id!==id);
+  try{localStorage.setItem('rd_favs',JSON.stringify(S.favs))}catch{}
+  renderFavs();
+}
+function renderFavs(){
+  const el=document.getElementById('favs');
+  if(!S.favs.length){el.innerHTML='<div class="empty">No saved routes yet.</div>';return;}
+  const icons={running:'🏃',walking:'🚶',cycling:'🚴'};
+  el.innerHTML=S.favs.map(f=>{
+    const km=(f.meta.dist/1000).toFixed(1);
+    const safe=JSON.stringify(f).replace(/'/g,"\\'");
+    return `<div class="fav" onclick='loadFav(${safe})'>
+      <span style="font-size:1.1rem">${icons[f.meta.act]||'🏃'}</span>
+      <div class="fav-info">
+        <div class="fav-name">${f.name}</div>
+        <div class="fav-meta">${km} km · ${f.meta.loop?'Loop':'Out-back'}</div>
+      </div>
+      <button class="fav-del" onclick="event.stopPropagation();delFav(${f.id})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function setLoading(on){
+  document.getElementById('spin').style.display=on?'block':'none';
+  document.getElementById('btn-txt').textContent=on?'Generating...':'⚡ Generate Route';
+  document.getElementById('btn-gen').disabled=on;
+}
+
+let tt;
+function toast(msg,type='ok'){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className=`toast show ${type}`;
+  clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+renderFavs();
+</script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>RouteDrop</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
