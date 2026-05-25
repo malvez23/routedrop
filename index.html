@@ -549,37 +549,53 @@ async function generate(){
     let targetKm = parseFloat(dr.value);
     if(S.unit==='mi') targetKm *= 1.60934;
 
-    const randomBearing = Math.random() * 360;
+    const TOLERANCE = 0.15; // accept within 15%
+    const MAX_BEARING_ATTEMPTS = 3; // try up to 3 different directions
+    let bestResult = null;
+    let bestErr = Infinity;
 
-    function makeWaypoints(legKm){
-      if(S.loop){
-        return buildIsodistanceWaypoints(origin.lat, origin.lon, legKm * 3, randomBearing);
-      } else {
-        const wp = destPoint(origin.lat, origin.lon, legKm * 1.5, randomBearing);
-        return [wp, [origin.lat, origin.lon]];
+    for(let attempt = 0; attempt < MAX_BEARING_ATTEMPTS; attempt++){
+      // Pick a fresh random bearing for each top-level attempt
+      const randomBearing = Math.random() * 360;
+
+      function makeWaypoints(legKm){
+        if(S.loop){
+          return buildIsodistanceWaypoints(origin.lat, origin.lon, legKm * 3, randomBearing);
+        } else {
+          const wp = destPoint(origin.lat, origin.lon, legKm * 1.5, randomBearing);
+          return [wp, [origin.lat, origin.lon]];
+        }
       }
+
+      // Binary search for the right leg length in this direction
+      let lo = targetKm * 0.05;
+      let hi = targetKm * 0.6;
+      let result = null;
+
+      for(let i = 0; i < 5; i++){
+        const mid = (lo + hi) / 2;
+        result = await osrm(origin, makeWaypoints(mid), S.act);
+        const actualKm = result.dist / 1000;
+        const err = Math.abs((actualKm - targetKm) / targetKm);
+        if(err < TOLERANCE){
+          bestResult = result;
+          bestErr = err;
+          break;
+        }
+        if(err < bestErr){
+          bestErr = err;
+          bestResult = result;
+        }
+        if(actualKm > targetKm) hi = mid;
+        else lo = mid;
+      }
+
+      // If this direction found a good result, stop trying new bearings
+      if(bestErr < TOLERANCE) break;
     }
 
-    // Binary search: find the straight-line leg length that produces
-    // a routed distance close to targetKm. Max 5 OSRM calls.
-    let lo = targetKm * 0.05;  // lower bound on leg
-    let hi = targetKm * 0.6;   // upper bound on leg
-    let result = null;
-    const TOLERANCE = 0.12; // accept within 12%
-
-    for(let i = 0; i < 5; i++){
-      const mid = (lo + hi) / 2;
-      result = await osrm(origin, makeWaypoints(mid), S.act);
-      const actualKm = result.dist / 1000;
-      const err = (actualKm - targetKm) / targetKm;
-      if(Math.abs(err) < TOLERANCE) break;
-      // If route is too long, shrink leg; if too short, grow leg
-      if(actualKm > targetKm) hi = mid;
-      else lo = mid;
-    }
-
-    S.coords = result.coords;
-    S.meta = {origin, dist:result.dist, dur:result.dur, act:S.act, loop:S.loop, unit:S.unit, targetKm};
+    S.coords = bestResult.coords;
+    S.meta = {origin, dist:bestResult.dist, dur:bestResult.dur, act:S.act, loop:S.loop, unit:S.unit, targetKm};
     drawBoth(true);
     updateStats();
     document.getElementById('results').style.display='';
