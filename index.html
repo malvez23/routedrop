@@ -519,13 +519,19 @@ async function generate(){
     let targetKm = parseFloat(dr.value);
     if(S.unit==='mi') targetKm *= 1.60934;
 
-    // Step 1: generate geometry with a calibration factor.
-    // Roads are ~30-40% longer than straight lines in urban grids.
-    // We use 0.75 as our initial straight-line-to-road ratio.
-    const ROAD_FACTOR = 0.75;
-    const legKm = (targetKm / 3) * ROAD_FACTOR;
+    // Step 1: calibrate the local road factor with a short test route.
+    // Send a point ~200m north and route back — gives us real road overhead for this area.
+    const testPoint = destPoint(origin.lat, origin.lon, 0.2, 0);
+    const testResult = await osrm(origin, [testPoint, [origin.lat, origin.lon]], S.act);
+    const testRoadKm = testResult.dist / 1000;
+    const testStraightKm = 0.4; // out 0.2km + back 0.2km straight line
+    // Road factor = how much longer roads are vs straight lines here
+    const roadFactor = Math.min(Math.max(testRoadKm / testStraightKm, 0.5), 2.0);
 
-    // Pick a random direction once — reuse for all retries
+    // Step 2: use calibrated factor to set leg length
+    // Each leg of the triangle = targetKm/3, adjusted for road overhead
+    const legKm = (targetKm / 3) / roadFactor;
+
     const randomBearing = Math.random() * 360;
 
     function makeWaypoints(leg){
@@ -537,13 +543,13 @@ async function generate(){
       }
     }
 
-    // Step 2: first attempt
+    // Step 3: first real attempt with calibrated leg length
     let wpts = makeWaypoints(legKm);
     let result = await osrm(origin, wpts, S.act);
     const actualKm = result.dist / 1000;
-
-    // Step 3: if more than 15% off, apply correction and do ONE more attempt
     const ratio = actualKm / targetKm;
+
+    // Step 4: if still more than 15% off, do one precise correction
     if(ratio < 0.85 || ratio > 1.15){
       const correctedLeg = legKm / ratio;
       wpts = makeWaypoints(correctedLeg);
