@@ -311,8 +311,8 @@ const S = {
 };
 
 // ── Maps ───────────────────────────────────────────────────────────────
-const TILE='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-const TILE_OPTS={attribution:'© <a href="https://openstreetmap.org">OSM</a>',maxZoom:19};
+const TILE='https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+const TILE_OPTS={attribution:'© <a href="https://carto.com/">CARTO</a> © <a href="https://openstreetmap.org">OpenStreetMap</a>',maxZoom:20,subdomains:'abcd'};
 
 const dmap=L.map('desktop-leaflet',{zoomControl:true}).setView([40.75,-73.99],13);
 L.tileLayer(TILE,TILE_OPTS).addTo(dmap);
