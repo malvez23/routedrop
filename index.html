@@ -254,8 +254,8 @@ input[type=range]::-webkit-slider-thumb{
         <div class="stats">
           <div class="stat"><div class="stat-l">Distance</div><div class="stat-v" id="s-dist">—</div></div>
           <div class="stat"><div class="stat-l">Est. Time</div><div class="stat-v" id="s-time">—</div></div>
-          <div class="stat"><div class="stat-l">Points</div><div class="stat-v" id="s-pts">—</div></div>
           <div class="stat"><div class="stat-l">Type</div><div class="stat-v" id="s-type">—</div></div>
+          <div class="stat"><div class="stat-l">Est. Pace</div><div class="stat-v" id="s-pace">—</div></div>
         </div>
 
         <button class="map-btn" onclick="showMobileMap()">🗺️ View Route Map</button>
@@ -618,8 +618,9 @@ function updateStats(){
   // Time based on actual distance + realistic pace
   const mins=Math.round(distMi*(PACE[m.act]||10));
   document.getElementById('s-time').textContent=mins>=60?`${Math.floor(mins/60)}h ${mins%60}m`:`${mins}m`;
-  document.getElementById('s-pts').textContent=S.coords.length;
   document.getElementById('s-type').textContent=m.loop?'Loop':'Out-back';
+  const paceMin=PACE[m.act]||10;
+  document.getElementById('s-pace').textContent=m.unit==='km'?`${Math.round(paceMin/0.621)} min/km`:`${paceMin} min/mi`;
 }
 
 // ── Exports ────────────────────────────────────────────────────────────
