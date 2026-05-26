@@ -371,7 +371,11 @@ function drawLeaflet(map,coords,origin,isNew,store){
   store.marker=L.marker([origin.lat,origin.lon],{icon:startIcon}).addTo(map);
 
   addArrows(map,coords,store);
-  if(isNew) map.fitBounds(store.line.getBounds(),{padding:[32,32],maxZoom:16});
+  if(isNew){
+    map.fitBounds(store.line.getBounds(),{padding:[20,20],maxZoom:17,animate:true});
+    // After fitting, zoom in one extra level for better legibility
+    setTimeout(()=>{ map.zoomIn(1); }, 400);
+  }
 }
 
 const dStore={line:null,marker:null,arr:[]};
