@@ -371,11 +371,7 @@ function drawLeaflet(map,coords,origin,isNew,store){
   store.marker=L.marker([origin.lat,origin.lon],{icon:startIcon}).addTo(map);
 
   addArrows(map,coords,store);
-  if(isNew){
-    const km = S.meta ? S.meta.targetKm : 1.6;
-    const zoom = km < 1 ? 16 : km < 2 ? 15 : km < 4 ? 14 : km < 8 ? 13 : km < 15 ? 12 : 11;
-    map.setView([origin.lat, origin.lon], zoom, {animate:true});
-  }
+  if(isNew) map.fitBounds(store.line.getBounds(),{padding:[32,32],maxZoom:16});
 }
 
 const dStore={line:null,marker:null,arr:[]};
