@@ -530,7 +530,7 @@ function buildIsodistanceWaypoints(lat, lon, targetKm, bearing1){
 }
 
 
-async function osrm(origin, wpts, act){
+async function osrm(origin, wpts, act, oneWay=false){
   const profile = act==='cycling' ? 'bike' : 'foot';
   const all = [[origin.lon,origin.lat], ...wpts.map(([la,lo])=>[lo,la])];
   const url = `https://router.project-osrm.org/route/v1/${profile}/${all.map(c=>c.join(',')).join(';')}?overview=full&geometries=geojson`;
@@ -538,7 +538,13 @@ async function osrm(origin, wpts, act){
   const d = await r.json();
   if(d.code!=='Ok') throw new Error('Routing failed — try a different location');
   const rt = d.routes[0];
-  return{coords:rt.geometry.coordinates.map(([lo,la])=>[la,lo]),dist:rt.distance,dur:rt.duration};
+  const coords = rt.geometry.coordinates.map(([lo,la])=>[la,lo]);
+  if(oneWay){
+    // Out-and-back: go there then retrace exactly the same path back
+    const reversed = [...coords].reverse();
+    return{coords:[...coords,...reversed.slice(1)], dist:rt.distance*2, dur:rt.duration*2};
+  }
+  return{coords, dist:rt.distance, dur:rt.duration};
 }
 
 async function generate(){
@@ -562,8 +568,10 @@ async function generate(){
         if(S.loop){
           return buildIsodistanceWaypoints(origin.lat, origin.lon, legKm * 3, randomBearing);
         } else {
-          const wp = destPoint(origin.lat, origin.lon, legKm * 1.5, randomBearing);
-          return [wp, [origin.lat, origin.lon]];
+          // Out-back: one destination at half target distance
+          // osrm will retrace the path back
+          const wp = destPoint(origin.lat, origin.lon, legKm, randomBearing);
+          return [wp];
         }
       }
 
@@ -574,7 +582,7 @@ async function generate(){
 
       for(let i = 0; i < 5; i++){
         const mid = (lo + hi) / 2;
-        result = await osrm(origin, makeWaypoints(mid), S.act);
+        result = await osrm(origin, makeWaypoints(mid), S.act, !S.loop);
         const actualKm = result.dist / 1000;
         const err = Math.abs((actualKm - targetKm) / targetKm);
         if(err < TOLERANCE){
