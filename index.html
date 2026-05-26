@@ -330,33 +330,49 @@ function bearing(la1,lo1,la2,lo2){
 }
 function angleDiff(a,b){let d=Math.abs(a-b)%360;return d>180?360-d:d}
 
-function arrowIcon(b){
-  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  return L.divIcon({
-    html:`<svg width="14" height="16" viewBox="0 0 14 16" style="transform:rotate(${b}deg)" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M7 0L14 16H0L7 0Z" fill="${isDark?'#1a1a1a':'#ffffff'}" stroke="${isDark?'#ffffff':'#333333'}" stroke-width="1.5"/>
-    </svg>`,
-    className:'',iconSize:[14,16],iconAnchor:[7,8]
-  });
-}
+
 
 function addArrows(map,coords,store){
   store.arr.forEach(a=>map.removeLayer(a));
   store.arr=[];
   const n=coords.length;
-  // Minimum spacing scales with route length — more zoom = more arrows (handled by Leaflet zoom)
-  // We place ~8-12 arrows total, only on straight segments
-  const minGap=Math.max(6,Math.floor(n/12));
-  const maxTurn=20; // degrees — skip anything that's turning
-  let last=-minGap;
-  for(let i=4;i<n-4;i++){
-    if(i-last<minGap) continue;
-    const b1=bearing(...coords[i-2],...coords[i]);
-    const b2=bearing(...coords[i],...coords[i+2]);
-    if(angleDiff(b1,b2)>maxTurn) continue;
-    const b=bearing(...coords[i-3],...coords[i+3]);
-    store.arr.push(L.marker(coords[i],{icon:arrowIcon(b),interactive:false,zIndexOffset:-100}).addTo(map));
-    last=i;
+
+  // Place numbered markers at evenly spaced intervals along the route
+  // S = start, then 1, 2, 3... at ~equal distance intervals
+  const numMarkers = Math.min(6, Math.max(3, Math.round(n / 20)));
+  const step = Math.floor(n / numMarkers);
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+  function makeMarker(coord, label){
+    const icon = L.divIcon({
+      html:`<div style="
+        width:22px;height:22px;
+        background:#0ABAB5;
+        border-radius:50%;
+        border:2.5px solid ${isDark?'#18181f':'#ffffff'};
+        display:flex;align-items:center;justify-content:center;
+        font-family:'Outfit',sans-serif;
+        font-size:${label==='S'?'10px':'9px'};
+        font-weight:700;
+        color:#ffffff;
+        box-sizing:border-box;
+      ">${label}</div>`,
+      className:'',
+      iconSize:[22,22],
+      iconAnchor:[11,11]
+    });
+    return L.marker(coord,{icon,interactive:false,zIndexOffset:100});
+  }
+
+  // Start marker
+  store.arr.push(makeMarker(coords[0],'S').addTo(map));
+
+  // Numbered markers along the route
+  for(let i=1;i<=numMarkers;i++){
+    const idx = Math.min(Math.round(i * step), n-1);
+    // Skip if too close to start or end
+    if(idx < 5 || idx > n-5) continue;
+    store.arr.push(makeMarker(coords[idx], String(i)).addTo(map));
   }
 }
 
@@ -373,7 +389,7 @@ function drawLeaflet(map,coords,origin,isNew,store){
   store.marker=L.marker([origin.lat,origin.lon],{icon:startIcon}).addTo(map);
 
   addArrows(map,coords,store);
-  if(isNew) map.fitBounds(store.line.getBounds(),{padding:[36,36],maxZoom:16,animate:true});
+  if(isNew) map.fitBounds(store.line.getBounds(),{padding:[35,35],maxZoom:16,animate:true});
 }
 
 const dStore={line:null,marker:null,arr:[]};
