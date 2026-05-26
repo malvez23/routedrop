@@ -372,10 +372,8 @@ function drawLeaflet(map,coords,origin,isNew,store){
 
   addArrows(map,coords,store);
   if(isNew){
-    // Center on origin at a zoom that fits the target distance
-    // without reframing around the route shape each time
     const km = S.meta ? S.meta.targetKm : 1.6;
-    const zoom = km < 1.5 ? 15 : km < 3 ? 14 : km < 6 ? 13 : km < 12 ? 12 : 11;
+    const zoom = km < 1 ? 16 : km < 2 ? 15 : km < 4 ? 14 : km < 8 ? 13 : km < 15 ? 12 : 11;
     map.setView([origin.lat, origin.lon], zoom, {animate:true});
   }
 }
