@@ -726,7 +726,13 @@ function distanceToEnd(lat,lon){
   const end=S.coords[S.coords.length-1];
   const m=haversineM(lat,lon,end[0],end[1]);
   const mi=m/1609.34;
-  return mi<0.1?Math.round(m)+'m':mi.toFixed(2)+' mi';
+  const pace=PACE[S.meta?S.meta.act:'running']||10; // min/mile
+  const mins=mi*pace;
+  if(mins<1) return 'Less than 1 min remaining';
+  const rounded=Math.round(mins);
+  return rounded>=60
+    ? `~${Math.floor(rounded/60)}h ${rounded%60}m remaining`
+    : `~${rounded} min remaining`;
 }
 
 let audioCtx=null;
