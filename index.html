@@ -364,7 +364,14 @@ function showMobileMap(){
     mmap=L.map('mobile-leaflet',{zoomControl:true}).setView([40.75,-73.99],13);
     L.tileLayer(TILE,TILE_OPTS).addTo(mmap);
   }
-  setTimeout(()=>{mmap.invalidateSize();if(S.coords) drawLeaflet(mmap,S.coords,S.meta.origin,true,mStore);},100);
+  setTimeout(()=>{
+    mmap.invalidateSize();
+    if(S.coords) drawLeaflet(mmap,S.coords,S.meta.origin,true,mStore);
+    // If navigation is active, add user marker to mobile map too
+    if(S.navActive&&S.userMarker&&!S.userMarkerM){
+      S.userMarkerM=L.marker(S.userMarker.getLatLng(),{icon:userIcon(),zIndexOffset:200}).addTo(mmap);
+    }
+  },100);
 }
 function hideMobileMap(){document.getElementById('mobile-map').classList.remove('show')}
 
@@ -661,7 +668,8 @@ function startNav(){
 function stopNav(){
   if(S.navWatchId) navigator.geolocation.clearWatch(S.navWatchId);
   S.navWatchId=null;S.navActive=false;
-  if(S.userMarker){dmap.removeLayer(S.userMarker);if(mmap)mmap.removeLayer(S.userMarker);S.userMarker=null;}
+  if(S.userMarker){dmap.removeLayer(S.userMarker);S.userMarker=null;}
+  if(S.userMarkerM&&mmap){mmap.removeLayer(S.userMarkerM);S.userMarkerM=null;}
   const btn=document.getElementById('btn-nav');
   btn.textContent='▶ Start Navigation';btn.classList.remove('active');
   document.getElementById('nav-label').textContent='Ready to navigate';
@@ -670,17 +678,26 @@ function stopNav(){
   document.getElementById('off-route-alert').style.display='none';
 }
 
-function updatePosition(lat,lon){
-  // Draw/move user marker
-  const userIcon=L.divIcon({
+function userIcon(){
+  return L.divIcon({
     html:`<div style="width:16px;height:16px;background:#0ABAB5;border-radius:50%;border:3px solid #fff;box-shadow:0 0 8px rgba(10,186,181,.6)"></div>`,
     className:'',iconSize:[16,16],iconAnchor:[8,8]
   });
-  if(S.userMarker){S.userMarker.setLatLng([lat,lon]);}
-  else{S.userMarker=L.marker([lat,lon],{icon:userIcon,zIndexOffset:200}).addTo(dmap);if(mmap)S.userMarker.addTo(mmap);}
+}
 
-  // Pan map to follow user
+function updatePosition(lat,lon){
+  // Draw/move user marker on both maps
+  if(S.userMarker){
+    S.userMarker.setLatLng([lat,lon]);
+    S.userMarkerM && S.userMarkerM.setLatLng([lat,lon]);
+  } else {
+    S.userMarker=L.marker([lat,lon],{icon:userIcon(),zIndexOffset:200}).addTo(dmap);
+    if(mmap) S.userMarkerM=L.marker([lat,lon],{icon:userIcon(),zIndexOffset:200}).addTo(mmap);
+  }
+
+  // Pan whichever map is visible
   dmap.panTo([lat,lon],{animate:true,duration:0.5});
+  if(mmap) mmap.panTo([lat,lon],{animate:true,duration:0.5});
 
   // Check if off route (within ~50 meters)
   const onRoute=S.coords&&S.coords.some(([la,lo])=>haversineM(lat,lon,la,lo)<60);
