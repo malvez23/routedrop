@@ -495,15 +495,15 @@ async function generate(){
     else if(S.unit==='steps'){const strideM=STRIDE[S.act]||0.762;targetKm=(targetKm*strideM)/1000;}
 
     const TOLERANCE=0.15;const MAX_ATTEMPTS=3;
+    const isOutBack=!S.loop;
     let bestResult=null;let bestErr=Infinity;
 
     for(let attempt=0;attempt<MAX_ATTEMPTS;attempt++){
       const randomBearing=Math.random()*360;
-      const isOutBack=!S.loop;
-      function makeWaypoints(legKm){
-        if(S.loop)return buildIsodistanceWaypoints(origin.lat,origin.lon,legKm*3,randomBearing);
+      const makeWaypoints=(legKm)=>{
+        if(S.loop) return buildIsodistanceWaypoints(origin.lat,origin.lon,legKm*3,randomBearing);
         const wp=destPoint(origin.lat,origin.lon,legKm,randomBearing);return[wp];
-      }
+      };
       let lo=targetKm*0.05,hi=targetKm*0.6,result=null;
       for(let i=0;i<5;i++){
         const mid=(lo+hi)/2;
