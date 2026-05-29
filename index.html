@@ -34,7 +34,7 @@
 }
 html,body{height:100%;font-family:'Outfit','DM Sans',sans-serif;background:var(--bg);color:var(--txt);overflow:hidden}
 #app{display:flex;flex-direction:column;height:100dvh}
-
+ 
 /* HEADER */
 header{
   display:flex;align-items:center;gap:10px;
@@ -45,7 +45,7 @@ header{
 .dot{width:8px;height:8px;background:var(--acc);border-radius:50%;animation:pulse 2s ease-in-out infinite;flex-shrink:0}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.5);opacity:.5}}
 .htag{margin-left:auto;font-size:.58rem;color:var(--mut);letter-spacing:.15em;text-transform:uppercase;font-family:'DM Mono',monospace}
-
+ 
 /* LAYOUT */
 #body{display:flex;flex:1;overflow:hidden}
 #sidebar{width:100%;overflow-y:auto;display:flex;flex-direction:column;background:var(--surf);flex-shrink:0}
@@ -54,11 +54,11 @@ header{
   #sidebar{width:320px;border-right:1px solid var(--bdr)}
   #mapwrap{display:block!important}
 }
-
+ 
 /* SECTIONS */
 .sec{padding:16px;border-bottom:1px solid var(--bdr)}
 .lbl{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);margin-bottom:8px;font-family:'DM Mono',monospace}
-
+ 
 /* ACTIVITY PILLS */
 .pills{display:flex;gap:6px}
 .pill{
@@ -67,7 +67,7 @@ header{
   cursor:pointer;text-align:center;transition:all .15s;
 }
 .pill.on{background:var(--acc);color:var(--acc-txt);border-color:var(--acc);font-weight:700}
-
+ 
 /* INPUTS */
 .ac-wrap{position:relative}
 input[type=text]{
@@ -76,7 +76,7 @@ input[type=text]{
   padding:10px 12px;border-radius:6px;outline:none;-webkit-appearance:none;
 }
 input[type=text]:focus{border-color:var(--acc)}
-
+ 
 /* AUTOCOMPLETE */
 #ac-list{
   position:absolute;top:100%;left:0;right:0;z-index:500;
@@ -87,7 +87,7 @@ input[type=text]:focus{border-color:var(--acc)}
 .ac-item:last-child{border-bottom:none}
 .ac-item:hover,.ac-item.focused{background:var(--bdr);color:var(--acc)}
 .ac-item strong{color:var(--acc)}
-
+ 
 /* DISTANCE */
 .dist-big{font-size:2rem;font-weight:800;color:var(--acc);letter-spacing:-.03em;margin-bottom:6px;font-family:'Outfit',sans-serif}
 .dist-big small{font-size:.85rem;color:var(--mut);font-weight:400}
@@ -103,7 +103,7 @@ input[type=range]::-webkit-slider-thumb{
 .rl{display:flex;justify-content:space-between;font-size:.6rem;color:var(--mut);margin-top:4px}
 .unit-row{display:flex;gap:6px;align-items:center;margin-top:10px}
 .unit-row span{font-size:.7rem;color:var(--mut)}
-
+ 
 /* TOGGLES */
 .tog-row{
   display:flex;align-items:center;justify-content:space-between;
@@ -114,7 +114,7 @@ input[type=range]::-webkit-slider-thumb{
 .tog::after{content:'';position:absolute;width:14px;height:14px;background:var(--tog-knob-off);border-radius:50%;top:3px;left:3px;transition:all .2s}
 .tog.on{background:var(--acc)}
 .tog.on::after{left:19px;background:var(--acc-txt)}
-
+ 
 /* GENERATE */
 .btn-gen{
   width:100%;padding:14px;background:var(--acc);color:var(--acc-txt);
@@ -125,13 +125,13 @@ input[type=range]::-webkit-slider-thumb{
 .btn-gen:disabled{opacity:.35;cursor:not-allowed}
 .spinner{width:15px;height:15px;border:2px solid #0a0a0f;border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite;display:none}
 @keyframes spin{to{transform:rotate(360deg)}}
-
+ 
 /* STATS */
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
 .stat{background:var(--surf2);border:1px solid var(--bdr);border-radius:6px;padding:9px 11px}
 .stat-l{font-size:.55rem;color:var(--mut);letter-spacing:.12em;text-transform:uppercase;margin-bottom:2px;font-family:'DM Mono',monospace}
 .stat-v{font-size:1rem;font-weight:800;color:var(--acc);font-family:'Outfit',sans-serif}
-
+ 
 /* EXPORT */
 .exp-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .btn-exp{
@@ -141,12 +141,12 @@ input[type=range]::-webkit-slider-thumb{
 }
 .btn-exp:active{border-color:var(--acc);color:var(--acc)}
 .btn-exp.full{grid-column:span 2;justify-content:center}
-
+ 
 /* SAVE */
 .save-row{display:flex;gap:7px;margin-bottom:10px}
 .save-row input{flex:1}
 .btn-save{padding:10px 12px;background:var(--acc);border:none;border-radius:6px;color:var(--acc-txt);font-family:inherit;font-size:.7rem;cursor:pointer;white-space:nowrap}
-
+ 
 /* FAVORITES */
 .fav{display:flex;align-items:center;gap:9px;background:var(--surf2);border:1px solid var(--bdr);border-radius:6px;padding:9px 11px;margin-bottom:6px;cursor:pointer}
 .fav-info{flex:1;min-width:0}
@@ -154,7 +154,7 @@ input[type=range]::-webkit-slider-thumb{
 .fav-meta{font-size:.6rem;color:var(--mut);margin-top:2px}
 .fav-del{background:none;border:none;color:var(--mut);cursor:pointer;font-size:.78rem;padding:4px}
 .empty{font-size:.7rem;color:var(--mut);text-align:center;padding:10px 0}
-
+ 
 /* MOBILE MAP BTN */
 .map-btn{
   display:flex;align-items:center;justify-content:center;gap:7px;
@@ -162,7 +162,7 @@ input[type=range]::-webkit-slider-thumb{
   border-radius:8px;color:var(--txt);font-family:inherit;font-size:.78rem;cursor:pointer;margin-bottom:12px;
 }
 @media(min-width:700px){.map-btn{display:none}}
-
+ 
 /* MOBILE MAP PANEL */
 #mobile-map{position:fixed;inset:0;background:var(--bg);z-index:200;display:none;flex-direction:column}
 #mobile-map.show{display:flex}
@@ -171,13 +171,13 @@ input[type=range]::-webkit-slider-thumb{
 .btn-close{background:none;border:1px solid var(--bdr);border-radius:6px;color:var(--txt);font-family:inherit;font-size:.75rem;padding:6px 11px;cursor:pointer}
 #mobile-map-inner{flex:1;position:relative}
 #mobile-leaflet{width:100%;height:100%}
-
+ 
 /* MAP PLACEHOLDER */
 #map-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;pointer-events:none;background:var(--bg);transition:background .2s}
 #map-placeholder span{font-size:2.5rem;opacity:.2}
 #map-placeholder p{color:var(--mut);font-size:.82rem;text-align:center;padding:0 20px}
 #desktop-leaflet{width:100%;height:100%}
-
+ 
 /* LEAFLET OVERRIDES */
 @media(prefers-color-scheme:light){
   .leaflet-control-zoom a{background:#fff!important;color:#333!important;border-color:#ddd!important}
@@ -186,7 +186,7 @@ input[type=range]::-webkit-slider-thumb{
 .leaflet-control-zoom a{background:var(--surf)!important;color:var(--txt)!important;border-color:var(--bdr)!important}
 .leaflet-control-attribution{background:rgba(15,15,19,.8)!important;color:var(--mut)!important;font-size:9px!important}
 .leaflet-control-attribution a{color:var(--mut)!important}
-
+ 
 /* TOAST */
 #toast{
   position:fixed;bottom:18px;right:14px;left:14px;z-index:9999;
@@ -207,10 +207,10 @@ input[type=range]::-webkit-slider-thumb{
     <span class="htag">Route Generator</span>
     <span style="font-family:'DM Mono',monospace;font-size:.55rem;color:var(--mut);opacity:.5;margin-left:8px">v2.8.6</span>
   </header>
-
+ 
   <div id="body">
     <div id="sidebar">
-
+ 
       <div class="sec">
         <div class="lbl">Activity</div>
         <div class="pills">
@@ -219,14 +219,14 @@ input[type=range]::-webkit-slider-thumb{
           <button class="pill" data-act="cycling">🚴 Cycle</button>
         </div>
       </div>
-
+ 
       <div class="sec">
         <div class="lbl">Starting Point</div>
         <div class="ac-wrap">
           <input type="text" id="loc" placeholder="Address or place name" autocomplete="off" autocorrect="off" spellcheck="false"/>
           <div id="ac-list"></div>
         </div>
-
+ 
         <div class="lbl" style="margin-top:16px">Distance</div>
         <div class="dist-big"><span id="dv">3</span> <small id="ul">mi</small></div>
         <input type="range" id="dr" min="0.5" max="20" value="3" step="0.5"/>
@@ -238,20 +238,20 @@ input[type=range]::-webkit-slider-thumb{
           <button class="pill" id="u-steps" onclick="setUnit('steps')" style="flex:unset;padding:5px 14px">steps</button>
         </div>
       </div>
-
+ 
       <div class="sec">
         <div class="lbl">Options</div>
         <div class="tog-row" onclick="toggle('loop')"><span>🔁 Loop route</span><div class="tog on" id="t-loop"></div></div>
         <div class="tog-row" onclick="toggle('hills')"><span>⛰️ Avoid hills</span><div class="tog" id="t-hills"></div></div>
       </div>
-
+ 
       <div class="sec">
         <button class="btn-gen" id="btn-gen" onclick="generate()">
           <div class="spinner" id="spin"></div>
           <span id="btn-txt">⚡ Generate Route</span>
         </button>
       </div>
-
+ 
       <div class="sec" id="results" style="display:none">
         <div class="lbl">Route Stats</div>
         <div class="stats">
@@ -260,9 +260,9 @@ input[type=range]::-webkit-slider-thumb{
           <div class="stat"><div class="stat-l">Type</div><div class="stat-v" id="s-type">—</div></div>
           <div class="stat"><div class="stat-l">Est. Pace</div><div class="stat-v" id="s-pace">—</div></div>
         </div>
-
+ 
         <button class="map-btn" onclick="showMobileMap()">🗺️ View Route Map</button>
-
+ 
         <div class="lbl">Export</div>
         <div class="exp-grid">
           <button class="btn-exp" onclick="expGoogle()">🗺️ Google Maps</button>
@@ -271,28 +271,28 @@ input[type=range]::-webkit-slider-thumb{
           <button class="btn-exp full" onclick="copyLink()">🔗 Copy Share Link</button>
         </div>
       </div>
-
+ 
       <div class="sec" id="save-sec" style="display:none">
         <div class="save-row">
           <input type="text" id="sname" placeholder="Route name..."/>
           <button class="btn-save" onclick="saveRoute()">Save ★</button>
         </div>
       </div>
-
+ 
       <div class="sec" style="flex:1;padding-bottom:30px">
         <div class="lbl">Saved Routes</div>
         <div id="favs"><div class="empty">No saved routes yet.</div></div>
       </div>
-
+ 
     </div>
-
+ 
     <div id="mapwrap">
       <div id="desktop-leaflet"></div>
       <div id="map-placeholder"><span>🗺️</span><p>Enter a location &amp; generate a route</p></div>
     </div>
   </div>
 </div>
-
+ 
 <div id="mobile-map">
   <div class="map-header">
     <h2>Route Map</h2>
@@ -302,9 +302,9 @@ input[type=range]::-webkit-slider-thumb{
     <div id="mobile-leaflet"></div>
   </div>
 </div>
-
+ 
 <div id="toast"></div>
-
+ 
 <script>
 // ── State ──────────────────────────────────────────────────────────────
 const S = {
@@ -312,38 +312,38 @@ const S = {
   coords:null, meta:null, pickedLocation:null,
   favs:(()=>{try{return JSON.parse(localStorage.getItem('rd_favs')||'[]')}catch{return[]}})()
 };
-
+ 
 // ── Maps ───────────────────────────────────────────────────────────────
 const TILE='https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
 const TILE_OPTS={attribution:'© <a href="https://carto.com/">CARTO</a> © <a href="https://openstreetmap.org">OpenStreetMap</a>',maxZoom:20,subdomains:'abcd'};
-
+ 
 const dmap=L.map('desktop-leaflet',{zoomControl:true}).setView([40.75,-73.99],13);
 L.tileLayer(TILE,TILE_OPTS).addTo(dmap);
 let mmap=null;
-
+ 
 let dLayer=null,dMarker=null,dArrows=[];
 let mLayer=null,mMarker=null,mArrows=[];
-
+ 
 // ── Arrow drawing ──────────────────────────────────────────────────────
 function bearing(la1,lo1,la2,lo2){
   const dy=la2-la1,dx=(lo2-lo1)*Math.cos(la1*Math.PI/180);
   return Math.atan2(dx,dy)*180/Math.PI;
 }
 function angleDiff(a,b){let d=Math.abs(a-b)%360;return d>180?360-d:d}
-
-
-
+ 
+ 
+ 
 function addArrows(map,coords,store){
   store.arr.forEach(a=>map.removeLayer(a));
   store.arr=[];
   const n=coords.length;
-
+ 
   // Place numbered markers at evenly spaced intervals along the route
   // S = start, then 1, 2, 3... at ~equal distance intervals
   const numMarkers = Math.min(6, Math.max(3, Math.round(n / 20)));
   const step = Math.floor(n / numMarkers);
   const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
+ 
   function makeMarker(coord, label){
     const icon = L.divIcon({
       html:`<div style="
@@ -364,10 +364,10 @@ function addArrows(map,coords,store){
     });
     return L.marker(coord,{icon,interactive:false,zIndexOffset:100});
   }
-
+ 
   // Start marker
   store.arr.push(makeMarker(coords[0],'S').addTo(map));
-
+ 
   // Numbered markers along the route
   for(let i=1;i<=numMarkers;i++){
     const idx = Math.min(Math.round(i * step), n-1);
@@ -376,32 +376,32 @@ function addArrows(map,coords,store){
     store.arr.push(makeMarker(coords[idx], String(i)).addTo(map));
   }
 }
-
+ 
 function drawLeaflet(map,coords,origin,isNew,store){
   if(store.line) map.removeLayer(store.line);
   if(store.marker) map.removeLayer(store.marker);
-
+ 
   store.line=L.polyline(coords,{color:'#e63030',weight:4,opacity:.95,lineCap:'round',lineJoin:'round'}).addTo(map);
-
+ 
   const startIcon=L.divIcon({
     html:`<div style="width:14px;height:14px;background:#e63030;border-radius:50%;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)"></div>`,
     className:'',iconSize:[14,14],iconAnchor:[7,7]
   });
   store.marker=L.marker([origin.lat,origin.lon],{icon:startIcon}).addTo(map);
-
+ 
   addArrows(map,coords,store);
   if(isNew) map.fitBounds(store.line.getBounds(),{padding:[35,35],maxZoom:16,animate:true});
 }
-
+ 
 const dStore={line:null,marker:null,arr:[]};
 const mStore={line:null,marker:null,arr:[]};
-
+ 
 function drawBoth(isNew=true){
   if(!S.coords||!S.meta) return;
   drawLeaflet(dmap,S.coords,S.meta.origin,isNew,dStore);
   if(mmap) drawLeaflet(mmap,S.coords,S.meta.origin,isNew,mStore);
 }
-
+ 
 // ── Mobile map ─────────────────────────────────────────────────────────
 function showMobileMap(){
   document.getElementById('mobile-map').classList.add('show');
@@ -415,7 +415,7 @@ function showMobileMap(){
   },100);
 }
 function hideMobileMap(){document.getElementById('mobile-map').classList.remove('show')}
-
+ 
 // ── Activity ───────────────────────────────────────────────────────────
 document.querySelectorAll('[data-act]').forEach(b=>{
   b.addEventListener('click',()=>{
@@ -428,24 +428,24 @@ document.querySelectorAll('[data-act]').forEach(b=>{
     if(S.act==='cycling' && S.unit==='steps') setUnit('mi');
   });
 });
-
+ 
 // ── Slider ─────────────────────────────────────────────────────────────
 const dr=document.getElementById('dr');
 dr.addEventListener('input',()=>document.getElementById('dv').textContent=dr.value);
-
+ 
 // Stride lengths in meters per step
 const STRIDE={running:1.067,walking:0.762,cycling:0.762};
-
+ 
 function setUnit(u){
   S.unit=u;
   document.getElementById('u-km').classList.toggle('on',u==='km');
   document.getElementById('u-mi').classList.toggle('on',u==='mi');
   document.getElementById('u-steps').classList.toggle('on',u==='steps');
-
+ 
   const dr=document.getElementById('dr');
   const rlMin=document.getElementById('rl-min');
   const rlMax=document.getElementById('rl-max');
-
+ 
   if(u==='steps'){
     dr.min=500; dr.max=25000; dr.step=500;
     if(parseFloat(dr.value)<500) dr.value=5000;
@@ -464,7 +464,7 @@ function setUnit(u){
   }
   document.getElementById('dv').textContent=dr.value;
 }
-
+ 
 // ── Toggles ────────────────────────────────────────────────────────────
 const tog={loop:true,hills:false};
 function toggle(k){
@@ -472,12 +472,12 @@ function toggle(k){
   document.getElementById('t-'+k).classList.toggle('on',tog[k]);
   if(k==='loop') S.loop=tog[k]; else S.hills=tog[k];
 }
-
+ 
 // ── Autocomplete ───────────────────────────────────────────────────────
 const locInput=document.getElementById('loc');
 const acList=document.getElementById('ac-list');
 let acTimer,acFocused=-1,acResults=[];
-
+ 
 locInput.addEventListener('input',()=>{
   const q=locInput.value.trim();
   S.pickedLocation=null;
@@ -493,7 +493,7 @@ locInput.addEventListener('keydown',e=>{
   else if(e.key==='Escape')hideAC();
 });
 locInput.addEventListener('blur',()=>setTimeout(hideAC,150));
-
+ 
 async function fetchAC(q){
   try{
     const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5`,{headers:{'Accept-Language':'en'}});
@@ -529,7 +529,7 @@ function pickAC(i){
   hideAC();
 }
 function hideAC(){acList.style.display='none';acResults=[];acFocused=-1;}
-
+ 
 // ── Geocode ────────────────────────────────────────────────────────────
 async function resolveLocation(){
   if(S.pickedLocation)return S.pickedLocation;
@@ -539,10 +539,10 @@ async function resolveLocation(){
   if(!d.length)throw new Error('Location not found — try a city or address');
   return{lat:+d[0].lat,lon:+d[0].lon,name:d[0].display_name};
 }
-
+ 
 // ── Route generation ───────────────────────────────────────────────────
 const toRad=d=>d*Math.PI/180,toDeg=r=>r*180/Math.PI,RE=6371;
-
+ 
 // Move a point by (distKm) in (bearingDeg) direction
 function destPoint(lat,lon,distKm,bearingDeg){
   const b=toRad(bearingDeg);
@@ -552,14 +552,14 @@ function destPoint(lat,lon,distKm,bearingDeg){
   const lo2=lo1+Math.atan2(Math.sin(b)*Math.sin(d)*Math.cos(la1),Math.cos(d)-Math.sin(la1)*Math.sin(la2));
   return[toDeg(la2),toDeg(lo2)];
 }
-
+ 
 // Straight-line distance between two lat/lon points (km)
 function distKm(la1,lo1,la2,lo2){
   const dLa=toRad(la2-la1),dLo=toRad(lo2-lo1);
   const a=Math.sin(dLa/2)**2+Math.cos(toRad(la1))*Math.cos(toRad(la2))*Math.sin(dLo/2)**2;
   return RE*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
-
+ 
 // Freeshuffle isodistance algorithm:
 // Place 3 points so all legs are ~equal, forming a clean triangle loop
 function buildIsodistanceWaypoints(lat, lon, targetKm, bearing1){
@@ -571,8 +571,8 @@ function buildIsodistanceWaypoints(lat, lon, targetKm, bearing1){
   const wp3 = destPoint(wp2[0], wp2[1], legKm, bearing2);
   return [wp2, wp3, [lat, lon]];
 }
-
-
+ 
+ 
 async function osrm(origin, wpts, act, oneWay=false){
   const profile = act==='cycling' ? 'bike' : 'foot';
   const all = [[origin.lon,origin.lat], ...wpts.map(([la,lo])=>[lo,la])];
@@ -589,7 +589,7 @@ async function osrm(origin, wpts, act, oneWay=false){
   }
   return{coords, dist:rt.distance, dur:rt.duration};
 }
-
+ 
 async function generate(){
   if(!locInput.value.trim()){toast('Enter a starting location','err');return;}
   setLoading(true);
@@ -601,16 +601,16 @@ async function generate(){
       const strideM = STRIDE[S.act] || 0.762;
       targetKm = (targetKm * strideM) / 1000;
     }
-
+ 
     const TOLERANCE = 0.15; // accept within 15%
     const MAX_BEARING_ATTEMPTS = 3; // try up to 3 different directions
     let bestResult = null;
     let bestErr = Infinity;
-
+ 
     for(let attempt = 0; attempt < MAX_BEARING_ATTEMPTS; attempt++){
       // Pick a fresh random bearing for each top-level attempt
       const randomBearing = Math.random() * 360;
-
+ 
       function makeWaypoints(legKm){
         if(S.loop){
           return buildIsodistanceWaypoints(origin.lat, origin.lon, legKm * 3, randomBearing);
@@ -621,12 +621,12 @@ async function generate(){
           return [wp];
         }
       }
-
+ 
       // Binary search for the right leg length in this direction
       let lo = targetKm * 0.05;
       let hi = targetKm * 0.6;
       let result = null;
-
+ 
       for(let i = 0; i < 5; i++){
         const mid = (lo + hi) / 2;
         result = await osrm(origin, makeWaypoints(mid), S.act, !S.loop);
@@ -644,11 +644,11 @@ async function generate(){
         if(actualKm > targetKm) hi = mid;
         else lo = mid;
       }
-
+ 
       // If this direction found a good result, stop trying new bearings
       if(bestErr < TOLERANCE) break;
     }
-
+ 
     S.coords = bestResult.coords;
     S.meta = {origin, dist:bestResult.dist, dur:bestResult.dur, act:S.act, loop:S.loop, unit:S.unit, targetKm};
     drawBoth(true);
@@ -660,17 +660,16 @@ async function generate(){
   }catch(e){toast(e.message,'err');}
   finally{setLoading(false);}
 }
-
+ 
 // ── Stats ──────────────────────────────────────────────────────────────
 const PACE={walking:20,running:10,cycling:4};
 function updateStats(){
   const m=S.meta;
   // Show actual routed distance (accurate), not target
   const distMi=m.dist/1609.34,distKm=m.dist/1000;
+  // For steps mode, show distance in miles
   if(m.unit==='steps'){
-    const strideM=STRIDE[m.act]||0.762;
-    const steps=Math.round(m.dist/strideM);
-    document.getElementById('s-dist').textContent=steps.toLocaleString()+' steps';
+    document.getElementById('s-dist').textContent=distMi.toFixed(2)+' mi';
   } else {
     document.getElementById('s-dist').textContent=m.unit==='km'?distKm.toFixed(2)+' km':distMi.toFixed(2)+' mi';
   }
@@ -687,7 +686,7 @@ function updateStats(){
     document.getElementById('s-pace').textContent=m.unit==='km'?`${Math.round(paceMin/0.621)} min/km`:`${paceMin} min/mi`;
   }
 }
-
+ 
 // ── Exports ────────────────────────────────────────────────────────────
 function expGoogle(){
   const o=S.meta.origin;
@@ -701,9 +700,9 @@ function expGoogle(){
   url+=`/${d[0]},${d[1]}`;
   window.open(url,'_blank');
 }
-
+ 
 function dl(c,n,m){const b=new Blob([c],{type:m}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=n;a.click()}
-
+ 
 function expGPX(){
   let s=`<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="RouteDrop" xmlns="http://www.topografix.com/GPX/1/1">\n  <trk><name>RouteDrop ${S.meta.act}</name><trkseg>\n`;
   S.coords.forEach(([la,lo])=>{s+=`    <trkpt lat="${la}" lon="${lo}"></trkpt>\n`;});
@@ -711,7 +710,7 @@ function expGPX(){
   dl(s,`routedrop-${Date.now()}.gpx`,'application/gpx+xml');
   toast('GPX saved — import to Strava, Komoot, etc.','ok');
 }
-
+ 
 function expGarmin(){
   const now=new Date().toISOString();
   const sp=S.meta.act==='cycling'?'Biking':S.meta.act==='running'?'Running':'Walking';
@@ -727,13 +726,13 @@ function expGarmin(){
   dl(s,`routedrop-${Date.now()}.tcx`,'application/xml');
   toast('TCX saved — import via Garmin Connect','ok');
 }
-
+ 
 function copyLink(){
   const pts=S.coords.map(([la,lo])=>`${la.toFixed(5)},${lo.toFixed(5)}`).join(';');
   const link=`${location.href.split('?')[0]}?pts=${encodeURIComponent(pts.slice(0,1500))}`;
   navigator.clipboard?.writeText(link).then(()=>toast('Link copied!','ok')).catch(()=>prompt('Copy:',link));
 }
-
+ 
 // ── Favorites ──────────────────────────────────────────────────────────
 function saveRoute(){
   const name=document.getElementById('sname').value.trim()||`Route ${S.favs.length+1}`;
@@ -772,20 +771,20 @@ function renderFavs(){
     </div>`;
   }).join('');
 }
-
+ 
 function setLoading(on){
   document.getElementById('spin').style.display=on?'block':'none';
   document.getElementById('btn-txt').textContent=on?'Generating...':'⚡ Generate Route';
   document.getElementById('btn-gen').disabled=on;
 }
-
+ 
 let tt;
 function toast(msg,type='ok'){
   const el=document.getElementById('toast');
   el.textContent=msg;el.className=`toast show ${type}`;
   clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('show'),3000);
 }
-
+ 
 renderFavs();
 </script>
 </body>
