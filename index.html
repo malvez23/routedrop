@@ -230,11 +230,12 @@ input[type=range]::-webkit-slider-thumb{
         <div class="lbl" style="margin-top:16px">Distance</div>
         <div class="dist-big"><span id="dv">3</span> <small id="ul">mi</small></div>
         <input type="range" id="dr" min="0.5" max="20" value="3" step="0.5"/>
-        <div class="rl"><span>0.5</span><span>20</span></div>
+        <div class="rl"><span id="rl-min">0.5</span><span id="rl-max">20</span></div>
         <div class="unit-row">
           <span>Unit:</span>
           <button class="pill" id="u-km" onclick="setUnit('km')" style="flex:unset;padding:5px 14px">km</button>
           <button class="pill on" id="u-mi" onclick="setUnit('mi')" style="flex:unset;padding:5px 14px">mi</button>
+          <button class="pill" id="u-steps" onclick="setUnit('steps')" style="flex:unset;padding:5px 14px">steps</button>
         </div>
       </div>
 
@@ -420,6 +421,11 @@ document.querySelectorAll('[data-act]').forEach(b=>{
   b.addEventListener('click',()=>{
     document.querySelectorAll('[data-act]').forEach(x=>x.classList.remove('on'));
     b.classList.add('on'); S.act=b.dataset.act;
+    // Hide steps unit for cycling (cadence not steps)
+    const stepsBtn=document.getElementById('u-steps');
+    stepsBtn.style.display=S.act==='cycling'?'none':'';
+    // Switch away from steps if cycling selected
+    if(S.act==='cycling' && S.unit==='steps') setUnit('mi');
   });
 });
 
@@ -427,11 +433,36 @@ document.querySelectorAll('[data-act]').forEach(b=>{
 const dr=document.getElementById('dr');
 dr.addEventListener('input',()=>document.getElementById('dv').textContent=dr.value);
 
+// Stride lengths in meters per step
+const STRIDE={running:1.067,walking:0.762,cycling:0.762};
+
 function setUnit(u){
   S.unit=u;
   document.getElementById('u-km').classList.toggle('on',u==='km');
   document.getElementById('u-mi').classList.toggle('on',u==='mi');
-  document.getElementById('ul').textContent=u;
+  document.getElementById('u-steps').classList.toggle('on',u==='steps');
+
+  const dr=document.getElementById('dr');
+  const rlMin=document.getElementById('rl-min');
+  const rlMax=document.getElementById('rl-max');
+
+  if(u==='steps'){
+    dr.min=500; dr.max=25000; dr.step=500;
+    if(parseFloat(dr.value)<500) dr.value=5000;
+    rlMin.textContent='500'; rlMax.textContent='25k';
+    document.getElementById('ul').textContent='steps';
+  } else if(u==='km'){
+    dr.min=0.5; dr.max=20; dr.step=0.5;
+    if(parseFloat(dr.value)>20) dr.value=5;
+    rlMin.textContent='0.5'; rlMax.textContent='20';
+    document.getElementById('ul').textContent='km';
+  } else {
+    dr.min=0.5; dr.max=20; dr.step=0.5;
+    if(parseFloat(dr.value)>20) dr.value=3;
+    rlMin.textContent='0.5'; rlMax.textContent='20';
+    document.getElementById('ul').textContent='mi';
+  }
+  document.getElementById('dv').textContent=dr.value;
 }
 
 // ── Toggles ────────────────────────────────────────────────────────────
@@ -566,6 +597,10 @@ async function generate(){
     const origin = await resolveLocation();
     let targetKm = parseFloat(dr.value);
     if(S.unit==='mi') targetKm *= 1.60934;
+    else if(S.unit==='steps'){
+      const strideM = STRIDE[S.act] || 0.762;
+      targetKm = (targetKm * strideM) / 1000;
+    }
 
     const TOLERANCE = 0.15; // accept within 15%
     const MAX_BEARING_ATTEMPTS = 3; // try up to 3 different directions
@@ -632,13 +667,25 @@ function updateStats(){
   const m=S.meta;
   // Show actual routed distance (accurate), not target
   const distMi=m.dist/1609.34,distKm=m.dist/1000;
-  document.getElementById('s-dist').textContent=m.unit==='km'?distKm.toFixed(2)+' km':distMi.toFixed(2)+' mi';
+  if(m.unit==='steps'){
+    const strideM=STRIDE[m.act]||0.762;
+    const steps=Math.round(m.dist/strideM);
+    document.getElementById('s-dist').textContent=steps.toLocaleString()+' steps';
+  } else {
+    document.getElementById('s-dist').textContent=m.unit==='km'?distKm.toFixed(2)+' km':distMi.toFixed(2)+' mi';
+  }
   // Time based on actual distance + realistic pace
   const mins=Math.round(distMi*(PACE[m.act]||10));
   document.getElementById('s-time').textContent=mins>=60?`${Math.floor(mins/60)}h ${mins%60}m`:`${mins}m`;
   document.getElementById('s-type').textContent=m.loop?'Loop':'Out-back';
-  const paceMin=PACE[m.act]||10;
-  document.getElementById('s-pace').textContent=m.unit==='km'?`${Math.round(paceMin/0.621)} min/km`:`${paceMin} min/mi`;
+  if(m.unit==='steps'){
+    const strideM=STRIDE[m.act]||0.762;
+    const steps=Math.round((m.dist/strideM));
+    document.getElementById('s-pace').textContent=steps.toLocaleString()+' steps';
+  } else {
+    const paceMin=PACE[m.act]||10;
+    document.getElementById('s-pace').textContent=m.unit==='km'?`${Math.round(paceMin/0.621)} min/km`:`${paceMin} min/mi`;
+  }
 }
 
 // ── Exports ────────────────────────────────────────────────────────────
