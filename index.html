@@ -70,8 +70,8 @@ header{
 .htag{font-size:.65rem;color:var(--mut);letter-spacing:.08em;text-transform:uppercase;font-family:'DM Mono',monospace}
 .theme-toggle{
   margin-left:auto;background:none;border:1px solid var(--bdr);
-  border-radius:20px;padding:5px 10px;cursor:pointer;
-  color:var(--mut);font-size:.7rem;display:flex;align-items:center;gap:5px;
+  border-radius:20px;padding:5px 11px;cursor:pointer;
+  color:var(--mut);font-size:.65rem;display:flex;align-items:center;gap:5px;
   transition:all .2s;white-space:nowrap;
 }
 .theme-toggle:hover{border-color:var(--acc);color:var(--acc)}
@@ -1132,18 +1132,15 @@ function applyTheme(theme){
   const label=document.getElementById('theme-label');
   if(theme==='dark'){
     root.setAttribute('data-theme','dark');
-    // Currently dark — button offers to switch to light
-    icon.textContent='☀️';label.textContent='Light';
+    icon.textContent='☀️';label.textContent='Switch to Light';
   } else if(theme==='light'){
     root.setAttribute('data-theme','light');
-    // Currently light — button offers to switch to dark
-    icon.textContent='🌙';label.textContent='Dark';
+    icon.textContent='🌙';label.textContent='Switch to Dark';
   } else {
     root.removeAttribute('data-theme');
     const isDark=window.matchMedia('(prefers-color-scheme:dark)').matches;
-    // Show what switching TO would do
     icon.textContent=isDark?'☀️':'🌙';
-    label.textContent=isDark?'Light':'Dark';
+    label.textContent=isDark?'Switch to Light':'Switch to Dark';
   }
 }
 function toggleTheme(){
