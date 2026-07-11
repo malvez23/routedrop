@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- RouteDrop v3.0.5 -->
+<!-- RouteDrop v3.0.6 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -155,7 +155,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
   <header>
     <div class="logo"><div class="dot"></div>RouteDrop</div>
     <span class="htag">Route Generator</span>
-    <span style="font-family:'DM Mono',monospace;font-size:.55rem;color:var(--mut);opacity:.5;margin-left:8px">v3.0.5</span>
+    <span style="font-family:'DM Mono',monospace;font-size:.55rem;color:var(--mut);opacity:.5;margin-left:8px">v3.0.6</span>
   </header>
   <div id="body">
     <div id="sidebar">
@@ -487,9 +487,16 @@ function buildIsodistanceWaypoints(lat,lon,targetKm,bearing1){
 async function osrm(origin,wpts,act,oneWay=false){
   const profile=act==='cycling'?'bike':'foot';
   const all=[[origin.lon,origin.lat],...wpts.map(([la,lo])=>[lo,la])];
-  const url=`https://router.project-osrm.org/route/v1/${profile}/${all.map(c=>c.join(',')).join(';')}?overview=full&geometries=geojson&exclude=motorway`;
-  const r=await fetch(url);const d=await r.json();
-  if(d.code!=='Ok')throw new Error('Routing failed — try a different location');
+  // Try with motorway exclusion first, fall back without if it fails
+  const urls=[
+    `https://router.project-osrm.org/route/v1/${profile}/${all.map(c=>c.join(',')).join(';')}?overview=full&geometries=geojson&exclude=motorway`,
+    `https://router.project-osrm.org/route/v1/${profile}/${all.map(c=>c.join(',')).join(';')}?overview=full&geometries=geojson`
+  ];
+  let d=null;
+  for(const url of urls){
+    try{const r=await fetch(url);d=await r.json();if(d.code==='Ok')break;}catch{}
+  }
+  if(!d||d.code!=='Ok') return null; // return null so caller can try next bearing
   const rt=d.routes[0];
   const coords=rt.geometry.coordinates.map(([lo,la])=>[la,lo]);
   if(oneWay){const rev=[...coords].reverse();return{coords:[...coords,...rev.slice(1)],dist:rt.distance*2,dur:rt.duration*2};}
@@ -520,6 +527,7 @@ async function generate(){
       for(let i=0;i<5;i++){
         const mid=(lo+hi)/2;
         result=await osrm(origin,makeWaypoints(mid),S.act,isOutBack);
+        if(!result) continue; // routing failed for this waypoint, try next iteration
         const actualKm=result.dist/1000;
         const err=Math.abs((actualKm-targetKm)/targetKm);
         if(err<TOLERANCE){bestResult=result;bestErr=err;break;}
@@ -529,6 +537,7 @@ async function generate(){
       if(bestErr<TOLERANCE)break;
     }
 
+    if(!bestResult) throw new Error('Could not generate a route — try a different location or distance');
     S.coords=bestResult.coords;
     S.meta={origin,dist:bestResult.dist,dur:bestResult.dur,act:S.act,loop:S.loop,unit:S.unit,targetKm};
     drawBoth(true);
