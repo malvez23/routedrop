@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- RouteDrop v3.0.4 -->
+<!-- RouteDrop v3.0.5 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -155,7 +155,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
   <header>
     <div class="logo"><div class="dot"></div>RouteDrop</div>
     <span class="htag">Route Generator</span>
-    <span style="font-family:'DM Mono',monospace;font-size:.55rem;color:var(--mut);opacity:.5;margin-left:8px">v3.0.4</span>
+    <span style="font-family:'DM Mono',monospace;font-size:.55rem;color:var(--mut);opacity:.5;margin-left:8px">v3.0.5</span>
   </header>
   <div id="body">
     <div id="sidebar">
@@ -436,7 +436,7 @@ locInput.addEventListener('keydown',e=>{
 });
 locInput.addEventListener('blur',()=>setTimeout(hideAC,150));
 async function fetchAC(q){
-  try{const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5`,{headers:{'Accept-Language':'en'}});acResults=await r.json();renderAC(q);}catch{hideAC();}
+  try{const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5&viewbox=-125,24,-66,49&bounded=0`,{headers:{'Accept-Language':'en'}});acResults=await r.json();renderAC(q);}catch{hideAC();}
 }
 function renderAC(query){
   if(!acResults.length){hideAC();return;}
@@ -451,7 +451,12 @@ function renderAC(query){
   acList.querySelectorAll('.ac-item').forEach(el=>{el.addEventListener('mousedown',e=>{e.preventDefault();pickAC(+el.dataset.i);});});
 }
 function setFocus(i){const items=acList.querySelectorAll('.ac-item');if(!items.length)return;acFocused=Math.max(-1,Math.min(items.length-1,i));items.forEach((el,j)=>el.classList.toggle('focused',j===acFocused));}
-function pickAC(i){const r=acResults[i];S.pickedLocation={lat:+r.lat,lon:+r.lon,name:r.display_name};locInput.value=r.display_name.split(',').slice(0,2).join(',');hideAC();}
+function pickAC(i){const r=acResults[i];S.pickedLocation={lat:+r.lat,lon:+r.lon,name:r.display_name};const parts=r.display_name.split(',').map(p=>p.trim());
+  // If first part is a number and second is a street name, join them without comma
+  const first = /^\d+$/.test(parts[0]) ? parts[0]+' '+parts[1] : parts[0];
+  const second = /^\d+$/.test(parts[0]) ? parts[2] : parts[1];
+  locInput.value=second ? first+', '+second : first;
+  hideAC();}
 function hideAC(){acList.style.display='none';acResults=[];acFocused=-1;}
 
 // ── Geocode ────────────────────────────────────────────────────────────
