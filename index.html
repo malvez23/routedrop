@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- RouteDrop v3.0.0 -->
+<!-- RouteDrop v3.0.4 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -155,7 +155,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
   <header>
     <div class="logo"><div class="dot"></div>RouteDrop</div>
     <span class="htag">Route Generator</span>
-    <span style="font-family:'DM Mono',monospace;font-size:.55rem;color:var(--mut);opacity:.5;margin-left:8px">v3.0.0</span>
+    <span style="font-family:'DM Mono',monospace;font-size:.55rem;color:var(--mut);opacity:.5;margin-left:8px">v3.0.4</span>
   </header>
   <div id="body">
     <div id="sidebar">
@@ -482,7 +482,9 @@ function buildIsodistanceWaypoints(lat,lon,targetKm,bearing1){
 async function osrm(origin,wpts,act,oneWay=false){
   const profile=act==='cycling'?'bike':'foot';
   const all=[[origin.lon,origin.lat],...wpts.map(([la,lo])=>[lo,la])];
-  const url=`https://router.project-osrm.org/route/v1/${profile}/${all.map(c=>c.join(',')).join(';')}?overview=full&geometries=geojson`;
+  // Exclude highways and trunk roads for all activities
+  const excludeRoads = profile==='foot' ? 'motorway,trunk' : 'motorway';
+  const url=`https://router.project-osrm.org/route/v1/${profile}/${all.map(c=>c.join(',')).join(';')}?overview=full&geometries=geojson&exclude=${excludeRoads}`;
   const r=await fetch(url);const d=await r.json();
   if(d.code!=='Ok')throw new Error('Routing failed — try a different location');
   const rt=d.routes[0];
