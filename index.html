@@ -87,7 +87,7 @@ header{
 .sec{padding:16px 18px;border-bottom:1px solid var(--bdr)}
 
 /* LABELS */
-.lbl{font-size:.6rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:10px;font-family:'Inter',sans-serif}
+.lbl{font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:10px;font-family:'Inter',sans-serif}
 
 /* ACTIVITY PILLS — icon on top of label */
 .pills{display:flex;gap:6px;background:var(--surf2);border-radius:10px;padding:4px}
@@ -100,7 +100,7 @@ header{
   padding:8px 4px;line-height:1;
 }
 .pill .pill-icon{font-size:1.1rem;line-height:1}
-.pill .pill-label{font-size:.62rem;font-weight:600;letter-spacing:.02em}
+.pill .pill-label{font-size:.68rem;font-weight:600;letter-spacing:.02em}
 .pill.on{background:var(--acc);color:var(--acc-txt);box-shadow:var(--shadow)}
 .pill.on .pill-label{color:var(--acc-txt)}
 
@@ -118,7 +118,7 @@ header{
 input[type=text]{
   width:100%;background:var(--input-bg);
   border:1.5px solid var(--bdr);color:var(--txt);
-  font-family:'Inter',sans-serif;font-size:.85rem;font-weight:400;
+  font-family:'Inter',sans-serif;font-size:.88rem;font-weight:400;
   padding:11px 14px;border-radius:8px;outline:none;-webkit-appearance:none;
   transition:border-color .18s,box-shadow .18s;
 }
@@ -138,14 +138,14 @@ input[type=text]::placeholder{color:var(--mut)}
 /* DISTANCE — large editable number */
 .dist-wrap{position:relative;margin-bottom:12px}
 .dist-big{
-  font-size:3.5rem;font-weight:300;color:var(--txt);
+  font-size:3.5rem;font-weight:500;color:var(--txt);
   letter-spacing:-.04em;line-height:1;cursor:pointer;
   display:inline-flex;align-items:baseline;gap:6px;
   border-bottom:2px solid transparent;transition:border-color .18s;
   padding-bottom:2px;
 }
 .dist-big:hover{border-bottom-color:var(--acc)}
-.dist-big small{font-size:1.1rem;color:var(--mut);font-weight:400;letter-spacing:0}
+.dist-big small{font-size:1.1rem;color:var(--mut);font-weight:500;letter-spacing:0}
 .dist-edit{
   font-size:3.5rem;font-weight:300;color:var(--txt);
   letter-spacing:-.04em;line-height:1;
@@ -154,7 +154,7 @@ input[type=text]::placeholder{color:var(--mut)}
   padding-bottom:2px;display:none;
   box-shadow:0 0 0 3px rgba(10,186,181,.1);border-radius:2px;
 }
-.dist-hint{font-size:.6rem;color:var(--mut);margin-top:4px;font-family:'DM Mono',monospace;letter-spacing:.04em}
+.dist-hint{font-size:.65rem;color:var(--mut);margin-top:6px;font-family:'Inter',sans-serif;font-weight:400}
 
 /* RANGE SLIDER — accessible, large touch target */
 .slider-wrap{position:relative;padding:10px 0;margin-bottom:2px}
@@ -187,7 +187,7 @@ input[type=range]::-moz-range-thumb{width:28px;height:28px;background:var(--acc)
 .tog-row{
   display:flex;align-items:center;justify-content:space-between;
   padding:11px 0;border-bottom:1px solid var(--bdr);
-  cursor:pointer;font-size:.85rem;font-weight:500;color:var(--txt);
+  cursor:pointer;font-size:.88rem;font-weight:500;color:var(--txt);
   transition:color .15s;
 }
 .tog-row:last-child{border-bottom:none;padding-bottom:0}
@@ -215,8 +215,8 @@ input[type=range]::-moz-range-thumb{width:28px;height:28px;background:var(--acc)
 /* STATS GRID */
 .stats{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--bdr);border-left:1px solid var(--bdr);margin-bottom:14px}
 .stat{padding:12px 14px;border-bottom:1px solid var(--bdr);border-right:1px solid var(--bdr)}
-.stat-l{font-size:.58rem;font-weight:600;color:var(--mut);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;font-family:'Inter',sans-serif}
-.stat-v{font-size:1.3rem;font-weight:300;color:var(--txt);letter-spacing:-.03em;line-height:1}
+.stat-l{font-size:.6rem;font-weight:700;color:var(--mut);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;font-family:'Inter',sans-serif}
+.stat-v{font-size:1.3rem;font-weight:600;color:var(--txt);letter-spacing:-.03em;line-height:1}
 .stat-v span{font-size:.65rem;font-weight:500;color:var(--mut);margin-left:2px;letter-spacing:0}
 .stat-v.accent{color:var(--acc);font-weight:500}
 
@@ -225,7 +225,7 @@ input[type=range]::-moz-range-thumb{width:28px;height:28px;background:var(--acc)
 .btn-exp{
   padding:9px 10px;background:var(--surf2);
   border:1px solid var(--bdr);border-radius:7px;
-  color:var(--txt2);font-family:'Inter',sans-serif;font-size:.72rem;font-weight:500;
+  color:var(--txt2);font-family:'Inter',sans-serif;font-size:.76rem;font-weight:500;
   cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;
 }
 .btn-exp:hover{border-color:var(--acc);color:var(--acc);background:rgba(10,186,181,.05)}
@@ -250,7 +250,7 @@ input[type=range]::-moz-range-thumb{width:28px;height:28px;background:var(--acc)
 .fav:last-child{border-bottom:none}
 .fav:hover{background:var(--surf2)}
 .fav-info{flex:1;min-width:0}
-.fav-name{font-size:.82rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--txt)}
+.fav-name{font-size:.85rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--txt)}
 .fav-meta{font-size:.65rem;color:var(--mut);margin-top:2px;font-family:'DM Mono',monospace}
 .fav-del{background:none;border:none;color:var(--mut);cursor:pointer;font-size:.8rem;padding:4px;border-radius:4px;transition:all .12s}
 .fav-del:hover{color:var(--red);background:rgba(230,48,48,.08)}
@@ -294,7 +294,7 @@ input[type=range]::-moz-range-thumb{width:28px;height:28px;background:var(--acc)
 /* WEATHER */
 .weather-card{display:flex;align-items:center;gap:14px;padding:12px 0}
 .weather-icon{font-size:2rem;flex-shrink:0}
-.weather-temp{font-size:1.6rem;font-weight:300;color:var(--txt);letter-spacing:-.04em;line-height:1}
+.weather-temp{font-size:1.6rem;font-weight:500;color:var(--txt);letter-spacing:-.04em;line-height:1}
 .weather-desc{font-size:.65rem;color:var(--mut);margin-top:3px;font-family:'DM Mono',monospace;letter-spacing:.06em;text-transform:uppercase}
 .weather-right{margin-left:auto;text-align:right;display:flex;flex-direction:column;gap:4px}
 .weather-right .wrow{display:flex;align-items:center;gap:8px;justify-content:flex-end}
@@ -313,7 +313,7 @@ input[type=range]::-moz-range-thumb{width:28px;height:28px;background:var(--acc)
 .nav-dot{width:9px;height:9px;background:var(--acc);border-radius:50%;flex-shrink:0}
 .nav-dot.pulse{animation:navpulse 1.2s ease-in-out infinite}
 @keyframes navpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.7)}}
-.nav-label{font-size:.78rem;font-weight:600;color:var(--acc)}
+.nav-label{font-size:.82rem;font-weight:700;color:var(--acc)}
 .nav-sub{font-size:.65rem;color:var(--mut);margin-top:2px;font-family:'DM Mono',monospace}
 .btn-nav{
   width:100%;padding:12px;
@@ -1128,13 +1128,28 @@ renderHistory();
 // ── Theme toggle ──────────────────────────────────────────────────────
 function applyTheme(theme){
   const root=document.documentElement;
-  if(theme==='dark'){root.setAttribute('data-theme','dark');document.getElementById('theme-icon').textContent='☀️';document.getElementById('theme-label').textContent='Light';}
-  else if(theme==='light'){root.setAttribute('data-theme','light');document.getElementById('theme-icon').textContent='🌙';document.getElementById('theme-label').textContent='Dark';}
-  else{root.removeAttribute('data-theme');const isDark=window.matchMedia('(prefers-color-scheme:dark)').matches;document.getElementById('theme-icon').textContent=isDark?'☀️':'🌙';document.getElementById('theme-label').textContent=isDark?'Light':'Dark';}
+  const icon=document.getElementById('theme-icon');
+  const label=document.getElementById('theme-label');
+  if(theme==='dark'){
+    root.setAttribute('data-theme','dark');
+    // Currently dark — button offers to switch to light
+    icon.textContent='☀️';label.textContent='Light';
+  } else if(theme==='light'){
+    root.setAttribute('data-theme','light');
+    // Currently light — button offers to switch to dark
+    icon.textContent='🌙';label.textContent='Dark';
+  } else {
+    root.removeAttribute('data-theme');
+    const isDark=window.matchMedia('(prefers-color-scheme:dark)').matches;
+    // Show what switching TO would do
+    icon.textContent=isDark?'☀️':'🌙';
+    label.textContent=isDark?'Light':'Dark';
+  }
 }
 function toggleTheme(){
   const cur=document.documentElement.getAttribute('data-theme');
   const isDark=cur==='dark'||(cur===null&&window.matchMedia('(prefers-color-scheme:dark)').matches);
+  // If currently dark → go light; if currently light → go dark
   const next=isDark?'light':'dark';
   localStorage.setItem('rd_theme',next);
   applyTheme(next);
