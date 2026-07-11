@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- RouteDrop v3.0.6 -->
+<!-- RouteDrop v3.1.0 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -155,7 +155,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
   <header>
     <div class="logo"><div class="dot"></div>RouteDrop</div>
     <span class="htag">Route Generator</span>
-    <span style="font-family:'DM Mono',monospace;font-size:.55rem;color:var(--mut);opacity:.5;margin-left:8px">v3.0.6</span>
+    <span style="font-family:'DM Mono',monospace;font-size:.55rem;color:var(--mut);opacity:.5;margin-left:8px">v3.1.0</span>
   </header>
   <div id="body">
     <div id="sidebar">
@@ -265,6 +265,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
           <button class="btn-exp" onclick="expGoogle()">🗺️ Google Maps</button>
           <button class="btn-exp" onclick="expGPX()">📥 GPX File</button>
           <button class="btn-exp" onclick="expGarmin()">⌚ Garmin TCX</button>
+          <button class="btn-exp" onclick="expKML()">🌍 KML File</button>
           <button class="btn-exp full" onclick="copyLink()">🔗 Share Route</button>
         </div>
       </div>
@@ -275,6 +276,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
           <input type="text" id="sname" placeholder="Route name..."/>
           <button class="btn-save" onclick="saveRoute()">Save ★</button>
         </div>
+      </div>
+
+      <div class="sec">
+        <div class="lbl">Recent Routes</div>
+        <div id="history-list"><div class="empty">No recent routes yet.</div></div>
       </div>
 
       <div class="sec" style="flex:1;padding-bottom:30px">
@@ -306,7 +312,8 @@ const S={
   act:'running',unit:'mi',loop:true,hills:false,
   coords:null,meta:null,pickedLocation:null,
   navActive:false,navWatchId:null,userMarker:null,
-  favs:(()=>{try{return JSON.parse(localStorage.getItem('rd_favs')||'[]')}catch{return[]}})()
+  favs:(()=>{try{return JSON.parse(localStorage.getItem('rd_favs')||'[]')}catch{return[]}})(),
+  history:(()=>{try{return JSON.parse(localStorage.getItem('rd_history')||'[]')}catch{return[]}})()
 };
 
 const TILE='https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
@@ -540,8 +547,15 @@ async function generate(){
     if(!bestResult) throw new Error('Could not generate a route — try a different location or distance');
     S.coords=bestResult.coords;
     S.meta={origin,dist:bestResult.dist,dur:bestResult.dur,act:S.act,loop:S.loop,unit:S.unit,targetKm};
+
+    // Auto-save to history (keep last 5)
+    S.history.unshift({id:Date.now(),coords:S.coords,meta:S.meta});
+    if(S.history.length>5) S.history=S.history.slice(0,5);
+    try{localStorage.setItem('rd_history',JSON.stringify(S.history))}catch{}
+
     drawBoth(true);
     updateStats();
+    renderHistory();
 
     // Show all result panels
     ['results','nav-sec','export-sec','save-sec'].forEach(id=>document.getElementById(id).style.display='');
@@ -781,6 +795,13 @@ function expGPX(){
   dl(s,`routedrop-${Date.now()}.gpx`,'application/gpx+xml');
   toast('GPX saved — import to Strava, Komoot, etc.','ok');
 }
+function expKML(){
+  const name='RouteDrop '+S.meta.act;
+  const coords=S.coords.map(([la,lo])=>lo+','+la+',0').join(' ');
+  const kml='<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>'+name+'</name><Placemark><name>'+name+'</name><LineString><tessellate>1</tessellate><coordinates>'+coords+'</coordinates></LineString></Placemark></Document></kml>';
+  dl(kml,'routedrop-'+Date.now()+'.kml','application/vnd.google-earth.kml+xml');
+  toast('KML saved — import to Google Earth or Google My Maps','ok');
+}
 function expGarmin(){
   const now=new Date().toISOString();
   const sp=S.meta.act==='cycling'?'Biking':S.meta.act==='running'?'Running':'Walking';
@@ -839,6 +860,26 @@ function renderFavs(){
   }).join('');
 }
 
+function renderHistory(){
+  const el=document.getElementById('history-list');
+  if(!S.history.length){el.innerHTML='<div class="empty">No recent routes yet.</div>';return;}
+  const icons={running:'🏃',walking:'🚶',cycling:'🚴'};
+  el.innerHTML=S.history.map(f=>{
+    const distMi=(f.meta.dist/1609.34).toFixed(2);
+    const safe=JSON.stringify(f).replace(/'/g,"\\'");
+    const d=new Date(f.id);
+    const time=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    const date=d.toLocaleDateString([],{month:'short',day:'numeric'});
+    return `<div class="fav" onclick='loadFav(${safe})'>
+      <span style="font-size:1.1rem">${icons[f.meta.act]||'🏃'}</span>
+      <div class="fav-info">
+        <div class="fav-name">${distMi} mi · ${f.meta.loop?'Loop':'Out-back'}</div>
+        <div class="fav-meta">${date} at ${time}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function setLoading(on){
   document.getElementById('spin').style.display=on?'block':'none';
   document.getElementById('btn-txt').textContent=on?'Generating...':'⚡ Generate Route';
@@ -853,6 +894,7 @@ function toast(msg,type='ok'){
 }
 
 renderFavs();
+renderHistory();
 </script>
 </body>
 </html>
