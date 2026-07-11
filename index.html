@@ -487,9 +487,7 @@ function buildIsodistanceWaypoints(lat,lon,targetKm,bearing1){
 async function osrm(origin,wpts,act,oneWay=false){
   const profile=act==='cycling'?'bike':'foot';
   const all=[[origin.lon,origin.lat],...wpts.map(([la,lo])=>[lo,la])];
-  // Exclude highways and trunk roads for all activities
-  const excludeRoads = profile==='foot' ? 'motorway,trunk' : 'motorway';
-  const url=`https://router.project-osrm.org/route/v1/${profile}/${all.map(c=>c.join(',')).join(';')}?overview=full&geometries=geojson&exclude=${excludeRoads}`;
+  const url=`https://router.project-osrm.org/route/v1/${profile}/${all.map(c=>c.join(',')).join(';')}?overview=full&geometries=geojson&exclude=motorway`;
   const r=await fetch(url);const d=await r.json();
   if(d.code!=='Ok')throw new Error('Routing failed — try a different location');
   const rt=d.routes[0];
