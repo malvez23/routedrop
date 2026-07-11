@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- RouteDrop v3.2.0 -->
+<!-- RouteDrop v3.2.1 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -94,9 +94,13 @@ header::after{
 /* ── LABELS — performance data style ─────────────────────────────────── */
 .lbl{
   font-size:.55rem;letter-spacing:.22em;text-transform:uppercase;
-  color:var(--mut);margin-bottom:9px;
+  color:var(--mut);margin-bottom:6px;
   font-family:'DM Mono',monospace;font-weight:500;
+  display:flex;align-items:center;gap:7px;
 }
+.lbl::before{content:'';width:2px;height:11px;background:var(--acc);border-radius:0;flex-shrink:0}
+.lbl::after{content:'';display:block;height:1px;flex:1;background:linear-gradient(90deg,var(--acc) 0%,transparent 50%);opacity:.25;margin-left:auto}
+.sec-rule{display:block;height:1px;background:linear-gradient(90deg,var(--acc) 0%,transparent 50%);opacity:.2;margin-bottom:9px}
 
 /* ── ACTIVITY PILLS — bold selector tabs ─────────────────────────────── */
 .pills{display:flex;gap:5px;background:var(--surf2);border-radius:10px;padding:4px}
@@ -160,12 +164,13 @@ input[type=range]::-webkit-slider-thumb{
 /* ── TOGGLES ──────────────────────────────────────────────────────────── */
 .tog-row{
   display:flex;align-items:center;justify-content:space-between;
-  padding:12px 14px;background:var(--surf2);
-  border:1.5px solid var(--bdr2);border-radius:10px;
-  cursor:pointer;margin-bottom:7px;font-size:.8rem;font-weight:600;
+  padding:10px 12px;background:var(--surf2);
+  border:1px solid var(--bdr);
+  border-radius:6px;
+  cursor:pointer;margin-bottom:6px;font-size:.78rem;font-weight:600;
   transition:border-color .2s;
 }
-.tog-row:hover{border-color:var(--mut)}
+.tog-row:hover{border-color:var(--acc)}
 .tog{width:40px;height:22px;background:var(--tog-off);border-radius:11px;position:relative;transition:background .2s;flex-shrink:0}
 .tog::after{content:'';position:absolute;width:16px;height:16px;background:var(--tog-knob-off);border-radius:50%;top:3px;left:3px;transition:all .2s}
 .tog.on{background:var(--acc);box-shadow:0 0 10px rgba(10,186,181,.3)}
@@ -188,32 +193,32 @@ input[type=range]::-webkit-slider-thumb{
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── STATS — performance metrics grid ────────────────────────────────── */
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px}
 .stat{
-  background:var(--surf2);border:1.5px solid var(--bdr2);
-  border-radius:10px;padding:10px 12px;
-  position:relative;overflow:hidden;
-}
-.stat::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:var(--acc);opacity:.5;
+  background:var(--surf2);
+  border:1px solid var(--bdr);
+  border-left:2px solid var(--acc);
+  border-radius:0 6px 6px 0;
+  padding:8px 10px;
 }
 .stat-l{
-  font-size:.52rem;color:var(--mut);letter-spacing:.18em;
-  text-transform:uppercase;margin-bottom:4px;
+  font-size:.5rem;color:var(--mut);letter-spacing:.18em;
+  text-transform:uppercase;margin-bottom:3px;
   font-family:'DM Mono',monospace;font-weight:500;
 }
-.stat-v{font-size:1.1rem;font-weight:800;color:var(--txt);font-family:'Outfit',sans-serif}
+.stat-v{font-size:1.25rem;font-weight:800;color:var(--txt);font-family:'Outfit',sans-serif;letter-spacing:-.03em;line-height:1.1}
+.stat-v small{font-size:.6rem;font-weight:500;color:var(--mut);letter-spacing:0;margin-left:1px}
 
 /* ── EXPORT BUTTONS ───────────────────────────────────────────────────── */
-.exp-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.exp-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
 .btn-exp{
-  padding:10px 8px;background:var(--surf2);
-  border:1.5px solid var(--bdr2);border-radius:8px;
-  color:var(--txt2);font-family:'Outfit',sans-serif;font-size:.7rem;font-weight:600;
+  padding:8px 8px;background:transparent;
+  border:1px solid var(--bdr2);border-radius:5px;
+  color:var(--mut);font-family:'DM Mono',monospace;font-size:.62rem;font-weight:500;
   cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s;
+  letter-spacing:.03em;
 }
-.btn-exp:hover{border-color:var(--acc);color:var(--acc);background:var(--acc-subtle)}
+.btn-exp:hover{border-color:var(--acc);color:var(--acc)}
 .btn-exp:active{border-color:var(--acc);color:var(--acc)}
 .btn-exp.full{grid-column:span 2;justify-content:center}
 
@@ -231,15 +236,19 @@ input[type=range]::-webkit-slider-thumb{
 /* ── ROUTE CARDS (fav + history) ──────────────────────────────────────── */
 .fav{
   display:flex;align-items:center;gap:10px;
-  background:var(--surf2);border:1.5px solid var(--bdr2);
-  border-radius:10px;padding:10px 12px;margin-bottom:6px;cursor:pointer;
+  background:var(--surf2);
+  border:1px solid var(--bdr);
+  border-left:2px solid transparent;
+  border-radius:0 6px 6px 0;
+  padding:9px 11px;margin-bottom:5px;cursor:pointer;
   transition:border-color .15s,background .15s;
 }
-.fav:hover{border-color:var(--acc);background:var(--acc-subtle)}
+.fav:hover{border-left-color:var(--acc);background:var(--acc-subtle)}
+.fav:first-child{border-left-color:var(--acc)}
 .fav-info{flex:1;min-width:0}
-.fav-name{font-size:.78rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--txt)}
-.fav-meta{font-size:.6rem;color:var(--mut);margin-top:2px;font-family:'DM Mono',monospace}
-.fav-del{background:none;border:none;color:var(--mut);cursor:pointer;font-size:.8rem;padding:4px;transition:color .15s}
+.fav-name{font-size:.76rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--txt)}
+.fav-meta{font-size:.58rem;color:var(--mut);margin-top:2px;font-family:'DM Mono',monospace;letter-spacing:.04em}
+.fav-del{background:none;border:none;color:var(--mut);cursor:pointer;font-size:.78rem;padding:4px;transition:color .15s}
 .fav-del:hover{color:var(--red)}
 .empty{font-size:.7rem;color:var(--mut);text-align:center;padding:12px 0;font-family:'DM Mono',monospace;letter-spacing:.05em}
 
@@ -295,35 +304,37 @@ input[type=range]::-webkit-slider-thumb{
 
 /* ── WEATHER ──────────────────────────────────────────────────────────── */
 .weather-card{
-  display:flex;align-items:center;gap:12px;
-  background:var(--surf2);border:1.5px solid var(--bdr2);
-  border-radius:10px;padding:12px 14px;
+  display:flex;align-items:center;gap:10px;
+  background:var(--surf2);
+  border:1px solid var(--bdr);border-left:2px solid var(--acc);
+  border-radius:0 6px 6px 0;padding:10px 12px;
 }
-.weather-icon{font-size:2.2rem;flex-shrink:0}
-.weather-temp{font-size:1.5rem;font-weight:800;color:var(--txt);font-family:'Outfit',sans-serif;letter-spacing:-.03em}
-.weather-desc{font-size:.65rem;color:var(--mut);margin-top:2px;font-family:'DM Mono',monospace;letter-spacing:.06em;text-transform:uppercase}
+.weather-icon{font-size:1.8rem;flex-shrink:0}
+.weather-temp{font-size:1.8rem;font-weight:800;color:var(--txt);font-family:'Outfit',sans-serif;letter-spacing:-.05em;line-height:1}
+.weather-desc{font-size:.55rem;color:var(--mut);margin-top:3px;font-family:'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase}
 .weather-right{margin-left:auto;text-align:right}
-.weather-right .wlbl{font-size:.52rem;color:var(--acc);font-family:'DM Mono',monospace;letter-spacing:.14em;text-transform:uppercase}
-.weather-right .wval{font-size:.82rem;color:var(--txt);font-weight:700}
+.weather-right .wlbl{font-size:.5rem;color:var(--acc);font-family:'DM Mono',monospace;letter-spacing:.16em;text-transform:uppercase}
+.weather-right .wval{font-size:.78rem;color:var(--txt);font-weight:700;font-family:'DM Mono',monospace}
 
 /* ── ELEVATION ────────────────────────────────────────────────────────── */
-.elev-wrap{background:var(--surf2);border:1.5px solid var(--bdr2);border-radius:10px;overflow:hidden}
-.elev-chart{height:60px;width:100%}
-.elev-stats{display:flex;justify-content:space-between;padding:7px 12px;border-top:1px solid var(--bdr)}
-.elev-stat{font-size:.58rem;color:var(--mut);font-family:'DM Mono',monospace;letter-spacing:.06em}
+.elev-wrap{background:var(--surf2);border:1px solid var(--bdr);border-left:2px solid var(--acc);border-radius:0 6px 6px 0;overflow:hidden}
+.elev-chart{height:56px;width:100%}
+.elev-stats{display:flex;justify-content:space-between;padding:5px 10px;border-top:1px solid var(--bdr)}
+.elev-stat{font-size:.55rem;color:var(--mut);font-family:'DM Mono',monospace;letter-spacing:.08em}
 .elev-stat span{color:var(--acc);font-weight:700}
 
 /* ── NAVIGATION ───────────────────────────────────────────────────────── */
 .nav-status{
   display:flex;align-items:center;gap:10px;
-  background:var(--surf2);border:1.5px solid var(--bdr2);
-  border-radius:10px;padding:12px 14px;margin-bottom:8px;
+  background:var(--surf2);
+  border:1px solid var(--bdr);border-left:2px solid var(--acc);
+  border-radius:0 6px 6px 0;padding:10px 12px;margin-bottom:7px;
 }
 .nav-dot{width:10px;height:10px;background:var(--acc);border-radius:50%;flex-shrink:0;box-shadow:0 0 6px var(--acc)}
 .nav-dot.pulse{animation:navpulse 1.2s ease-in-out infinite}
 @keyframes navpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.7)}}
-.nav-label{font-size:.8rem;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.04em}
-.nav-sub{font-size:.63rem;color:var(--mut);margin-top:2px;font-family:'DM Mono',monospace}
+.nav-label{font-size:.75rem;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.08em;font-family:'DM Mono',monospace}
+.nav-sub{font-size:.6rem;color:var(--mut);margin-top:2px;font-family:'DM Mono',monospace;letter-spacing:.04em}
 .btn-nav{
   width:100%;padding:13px;
   border:1.5px solid var(--acc);border-radius:10px;
@@ -362,7 +373,7 @@ input[type=range]::-webkit-slider-thumb{
   <header>
     <div class="logo"><div class="dot"></div>RouteDrop</div>
     <span class="htag">Route Generator</span>
-    <span style="font-family:'DM Mono',monospace;font-size:.55rem;color:var(--acc);opacity:.7;margin-left:8px">v3.2.0</span>
+    <span style="font-family:'DM Mono',monospace;font-size:.55rem;color:var(--acc);opacity:.7;margin-left:8px">v3.2.1</span>
   </header>
   <div id="body">
     <div id="sidebar">
