@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- RouteDrop v3.1.0 -->
+<!-- RouteDrop v3.1.1 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -155,7 +155,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
   <header>
     <div class="logo"><div class="dot"></div>RouteDrop</div>
     <span class="htag">Route Generator</span>
-    <span style="font-family:'DM Mono',monospace;font-size:.55rem;color:var(--mut);opacity:.5;margin-left:8px">v3.1.0</span>
+    <span style="font-family:'DM Mono',monospace;font-size:.55rem;color:var(--mut);opacity:.5;margin-left:8px">v3.1.1</span>
   </header>
   <div id="body">
     <div id="sidebar">
@@ -495,9 +495,17 @@ async function osrm(origin,wpts,act,oneWay=false){
   const profile=act==='cycling'?'bike':'foot';
   const all=[[origin.lon,origin.lat],...wpts.map(([la,lo])=>[lo,la])];
   // Try with motorway exclusion first, fall back without if it fails
-  const urls=[
-    `https://router.project-osrm.org/route/v1/${profile}/${all.map(c=>c.join(',')).join(';')}?overview=full&geometries=geojson&exclude=motorway`,
-    `https://router.project-osrm.org/route/v1/${profile}/${all.map(c=>c.join(',')).join(';')}?overview=full&geometries=geojson`
+  // For walking/running: try progressively less strict exclusions
+  // motorway_link and trunk_link are the ramps/service roads near interchanges
+  const base=`https://router.project-osrm.org/route/v1/${profile}/${all.map(c=>c.join(',')).join(';')}?overview=full&geometries=geojson`;
+  const urls= profile==='foot' ? [
+    base+'&exclude=motorway,trunk,motorway_link,trunk_link',
+    base+'&exclude=motorway,trunk',
+    base+'&exclude=motorway',
+    base
+  ] : [
+    base+'&exclude=motorway',
+    base
   ];
   let d=null;
   for(const url of urls){
