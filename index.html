@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- RouteDrop v3.2.3 -->
+<!-- RouteDrop v3.3.1 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -88,6 +88,10 @@ header{
 
 /* LABELS */
 .lbl{font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:10px;font-family:'Inter',sans-serif}
+.goal-seg{display:flex;background:var(--surf2);border-radius:8px;padding:3px;gap:3px;margin-bottom:12px}
+.goal-btn{flex:1;padding:7px 10px;font-size:.75rem;font-weight:600;color:var(--mut);border:none;border-radius:6px;background:transparent;cursor:pointer;transition:all .18s;font-family:'Inter',sans-serif}
+.goal-btn.on{background:var(--surf);color:var(--txt);border:1px solid var(--bdr);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.time-hint{font-size:.65rem;color:var(--mut);margin-top:5px;font-family:'Inter',sans-serif}
 
 /* ACTIVITY PILLS — icon on top of label */
 .pills{display:flex;gap:6px;background:var(--surf2);border-radius:10px;padding:4px}
@@ -347,7 +351,7 @@ input[type=range]::-moz-range-thumb{width:28px;height:28px;background:var(--acc)
     <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" aria-label="Toggle light/dark mode">
       <span id="theme-icon">🌙</span> <span id="theme-label">Dark</span>
     </button>
-    <span class="ver" style="margin-left:8px">v3.2.3</span>
+    <span class="ver" style="margin-left:8px">v3.3.1</span>
   </header>
   <div id="body">
     <div id="sidebar">
@@ -376,33 +380,57 @@ input[type=range]::-moz-range-thumb{width:28px;height:28px;background:var(--acc)
           <input type="text" id="loc" placeholder="Address or place name" autocomplete="off" autocorrect="off" spellcheck="false"/>
           <div id="ac-list"></div>
         </div>
-        <div class="lbl" style="margin-top:16px">Distance</div>
-        <div class="dist-wrap">
-          <div class="dist-big" id="dist-display" onclick="startDistEdit()" role="button" tabindex="0" aria-label="Click to type a custom distance" title="Click to enter a custom distance">
-            <span id="dv">3</span><small id="ul">mi</small>
+        <div class="lbl" style="margin-top:16px">Goal</div>
+        <div class="goal-seg">
+          <button class="goal-btn on" id="goal-dist" onclick="setGoalMode('distance')">Distance</button>
+          <button class="goal-btn" id="goal-time" onclick="setGoalMode('time')">Time</button>
+        </div>
+        <div id="goal-distance-panel">
+          <div class="dist-wrap">
+            <div class="dist-big" id="dist-display" onclick="startDistEdit()" role="button" tabindex="0" aria-label="Click to type a custom distance" title="Click to enter a custom distance">
+              <span id="dv">3</span><small id="ul">mi</small>
+            </div>
+            <input class="dist-edit" id="dist-input" type="number" min="0.5" max="25000" step="0.5"
+              aria-label="Enter custom distance" placeholder="3"
+              onblur="endDistEdit()" onkeydown="if(event.key==='Enter'||event.key==='Escape')endDistEdit()"/>
+            <div class="dist-hint" id="dist-hint">Tap number to type a custom distance</div>
           </div>
-          <input class="dist-edit" id="dist-input" type="number" min="0.5" max="25000" step="0.5"
-            aria-label="Enter custom distance" placeholder="3"
-            onblur="endDistEdit()" onkeydown="if(event.key==='Enter'||event.key==='Escape')endDistEdit()"/>
-          <div class="dist-hint" id="dist-hint">Tap number to type a custom distance</div>
+          <div class="slider-wrap">
+            <input type="range" id="dr" min="0.5" max="20" value="3" step="0.5"
+              aria-label="Distance slider"
+              aria-valuemin="0.5" aria-valuemax="20" aria-valuenow="3" aria-valuetext="3 miles"/>
+          </div>
+          <div class="rl"><span id="rl-min">0.5</span><span id="rl-max">20</span></div>
+          <div class="unit-row">
+            <span>Unit:</span>
+            <button class="pill pill-sm" id="u-km" onclick="setUnit('km')">
+              <span class="pill-label">km</span>
+            </button>
+            <button class="pill pill-sm on" id="u-mi" onclick="setUnit('mi')">
+              <span class="pill-label">mi</span>
+            </button>
+            <button class="pill pill-sm" id="u-steps" onclick="setUnit('steps')">
+              <span class="pill-label">steps</span>
+            </button>
+          </div>
         </div>
-        <div class="slider-wrap">
-          <input type="range" id="dr" min="0.5" max="20" value="3" step="0.5"
-            aria-label="Distance slider"
-            aria-valuemin="0.5" aria-valuemax="20" aria-valuenow="3" aria-valuetext="3 miles"/>
-        </div>
-        <div class="rl"><span id="rl-min">0.5</span><span id="rl-max">20</span></div>
-        <div class="unit-row">
-          <span>Unit:</span>
-          <button class="pill pill-sm" id="u-km" onclick="setUnit('km')">
-            <span class="pill-label">km</span>
-          </button>
-          <button class="pill pill-sm on" id="u-mi" onclick="setUnit('mi')">
-            <span class="pill-label">mi</span>
-          </button>
-          <button class="pill pill-sm" id="u-steps" onclick="setUnit('steps')">
-            <span class="pill-label">steps</span>
-          </button>
+        <div id="goal-time-panel" style="display:none">
+          <div class="dist-wrap">
+            <div class="dist-big" id="time-display" onclick="startTimeEdit()" role="button" tabindex="0" aria-label="Click to type a custom duration" title="Click to enter a custom duration">
+              <span id="tv">30</span><small>min</small>
+            </div>
+            <input class="dist-edit" id="time-input" type="number" min="5" max="300" step="5"
+              aria-label="Enter duration in minutes" placeholder="30"
+              onblur="endTimeEdit()" onkeydown="if(event.key==='Enter'||event.key==='Escape')endTimeEdit()"/>
+            <div class="dist-hint">Tap number to type a custom duration</div>
+          </div>
+          <div class="slider-wrap">
+            <input type="range" id="tr" min="5" max="120" value="30" step="5"
+              aria-label="Duration slider"
+              aria-valuemin="5" aria-valuemax="120" aria-valuenow="30" aria-valuetext="30 minutes"/>
+          </div>
+          <div class="rl"><span>5 min</span><span>2 hr</span></div>
+          <div class="time-hint" id="time-equiv">—</div>
         </div>
       </div>
 
@@ -527,8 +555,8 @@ input[type=range]::-moz-range-thumb{width:28px;height:28px;background:var(--acc)
 <script>
 const S={
   act:'running',unit:'mi',loop:true,hills:false,
-  coords:null,meta:null,pickedLocation:null,
-  navActive:false,navWatchId:null,userMarker:null,
+  coords:null,meta:null,pickedLocation:null,steps:[],
+  navActive:false,navWatchId:null,userMarker:null,navStepIdx:0,
   favs:(()=>{try{return JSON.parse(localStorage.getItem('rd_favs')||'[]')}catch{return[]}})(),
   history:(()=>{try{return JSON.parse(localStorage.getItem('rd_history')||'[]')}catch{return[]}})()
 };
@@ -606,6 +634,7 @@ document.querySelectorAll('[data-act]').forEach(b=>{
     b.classList.add('on'); b.setAttribute('aria-pressed','true'); S.act=b.dataset.act;
     document.getElementById('u-steps').style.display=S.act==='cycling'?'none':'';
     if(S.act==='cycling'&&S.unit==='steps') setUnit('mi');
+    updateTimeEquiv();
   });
 });
 
@@ -616,6 +645,56 @@ dr.addEventListener('input',()=>{
   dr.setAttribute('aria-valuenow',dr.value);
   dr.setAttribute('aria-valuetext',dr.value+' '+(S.unit==='km'?'kilometers':S.unit==='mi'?'miles':'steps'));
 });
+
+// ── Goal mode toggle ─────────────────────────────────────────────────────
+S.goalMode='distance'; // 'distance' or 'time'
+
+function setGoalMode(mode){
+  S.goalMode=mode;
+  document.getElementById('goal-dist').classList.toggle('on',mode==='distance');
+  document.getElementById('goal-time').classList.toggle('on',mode==='time');
+  document.getElementById('goal-distance-panel').style.display=mode==='distance'?'':'none';
+  document.getElementById('goal-time-panel').style.display=mode==='time'?'':'none';
+  if(mode==='time') updateTimeEquiv();
+}
+
+function updateTimeEquiv(){
+  const mins=parseFloat(document.getElementById('tr').value)||30;
+  const pace=PACE[S.act]||10; // min/mile
+  const mi=(mins/pace).toFixed(2);
+  const km=(mi*1.60934).toFixed(2);
+  document.getElementById('time-equiv').textContent=`≈ ${mi} mi / ${km} km at current pace`;
+}
+
+// Time slider
+const tr=document.getElementById('tr');
+tr.addEventListener('input',()=>{
+  document.getElementById('tv').textContent=tr.value;
+  tr.setAttribute('aria-valuenow',tr.value);
+  tr.setAttribute('aria-valuetext',tr.value+' minutes');
+  updateTimeEquiv();
+});
+
+function startTimeEdit(){
+  document.getElementById('time-display').style.display='none';
+  document.getElementById('time-input').style.display='inline-block';
+  document.getElementById('time-input').value=tr.value;
+  document.getElementById('time-input').focus();
+  document.getElementById('time-input').select();
+}
+function endTimeEdit(){
+  let val=parseFloat(document.getElementById('time-input').value);
+  if(!isNaN(val)&&val>0){
+    val=Math.max(5,Math.min(300,val));
+    tr.value=Math.min(val,120); // slider caps at 120 but we allow typing more
+    document.getElementById('tv').textContent=val;
+    tr.setAttribute('aria-valuenow',val);
+    updateTimeEquiv();
+  }
+  document.getElementById('time-display').style.display='';
+  document.getElementById('time-input').style.display='none';
+}
+document.getElementById('time-display').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')startTimeEdit();});
 
 function setUnit(u){
   S.unit=u;
@@ -636,6 +715,7 @@ function setUnit(u){
     document.getElementById('ul').textContent=u;
   }
   document.getElementById('dv').textContent=dr.value;
+  updateTimeEquiv();
 }
 
 // ── Toggles ────────────────────────────────────────────────────────────
@@ -718,7 +798,7 @@ async function osrm(origin,wpts,act,oneWay=false){
   // Try with motorway exclusion first, fall back without if it fails
   // For walking/running: try progressively less strict exclusions
   // motorway_link and trunk_link are the ramps/service roads near interchanges
-  const base=`https://router.project-osrm.org/route/v1/${profile}/${all.map(c=>c.join(',')).join(';')}?overview=full&geometries=geojson`;
+  const base=`https://router.project-osrm.org/route/v1/${profile}/${all.map(c=>c.join(',')).join(';')}?overview=full&geometries=geojson&steps=true`;
   const urls= profile==='foot' ? [
     base+'&exclude=motorway,trunk,motorway_link,trunk_link',
     base+'&exclude=motorway,trunk',
@@ -732,11 +812,29 @@ async function osrm(origin,wpts,act,oneWay=false){
   for(const url of urls){
     try{const r=await fetch(url);d=await r.json();if(d.code==='Ok')break;}catch{}
   }
-  if(!d||d.code!=='Ok') return null; // return null so caller can try next bearing
+  if(!d||d.code!=='Ok') return null;
   const rt=d.routes[0];
   const coords=rt.geometry.coordinates.map(([lo,la])=>[la,lo]);
-  if(oneWay){const rev=[...coords].reverse();return{coords:[...coords,...rev.slice(1)],dist:rt.distance*2,dur:rt.duration*2};}
-  return{coords,dist:rt.distance,dur:rt.duration};
+  // Extract turn-by-turn steps from all legs
+  const steps=[];
+  if(rt.legs){
+    rt.legs.forEach(leg=>{
+      if(leg.steps) leg.steps.forEach(step=>{
+        if(step.maneuver&&step.name!==undefined){
+          const loc=step.maneuver.location; // [lon,lat]
+          steps.push({
+            lat:loc[1],lon:loc[0],
+            type:step.maneuver.type,
+            modifier:step.maneuver.modifier||'',
+            name:step.name||'',
+            distance:step.distance, // meters to next step
+          });
+        }
+      });
+    });
+  }
+  if(oneWay){const rev=[...coords].reverse();return{coords:[...coords,...rev.slice(1)],dist:rt.distance*2,dur:rt.duration*2,steps};}
+  return{coords,dist:rt.distance,dur:rt.duration,steps};
 }
 
 // ── Generate ───────────────────────────────────────────────────────────
@@ -745,9 +843,16 @@ async function generate(){
   setLoading(true);
   try{
     const origin=await resolveLocation();
-    let targetKm=parseFloat(dr.value);
-    if(S.unit==='mi') targetKm*=1.60934;
-    else if(S.unit==='steps'){const strideM=STRIDE[S.act]||0.762;targetKm=(targetKm*strideM)/1000;}
+    let targetKm;
+    if(S.goalMode==='time'){
+      const mins=parseFloat(document.getElementById('tv').textContent)||30;
+      const miles=mins/(PACE[S.act]||10);
+      targetKm=miles*1.60934;
+    } else {
+      targetKm=parseFloat(dr.value);
+      if(S.unit==='mi') targetKm*=1.60934;
+      else if(S.unit==='steps'){const strideM=STRIDE[S.act]||0.762;targetKm=(targetKm*strideM)/1000;}
+    }
 
     const TOLERANCE=0.15;const MAX_ATTEMPTS=3;
     const isOutBack=!S.loop;
@@ -775,6 +880,7 @@ async function generate(){
 
     if(!bestResult) throw new Error('Could not generate a route — try a different location or distance');
     S.coords=bestResult.coords;
+    S.steps=bestResult.steps||[];
     S.meta={origin,dist:bestResult.dist,dur:bestResult.dur,act:S.act,loop:S.loop,unit:S.unit,targetKm};
 
     // Auto-save to history (keep last 5)
@@ -906,25 +1012,107 @@ function toggleNav(){
   if(S.navActive){stopNav();}else{startNav();}
 }
 
+// ── Silent audio loop — keeps Safari alive in background ──────────────────
+let silentAudio=null;
+function startSilentAudio(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const buf=ctx.createBuffer(1,ctx.sampleRate,ctx.sampleRate);
+    const src=ctx.createBufferSource();
+    src.buffer=buf;src.loop=true;
+    src.connect(ctx.destination);src.start();
+    silentAudio={ctx,src};
+  }catch(e){}
+}
+function stopSilentAudio(){
+  try{if(silentAudio){silentAudio.src.stop();silentAudio.ctx.close();silentAudio=null;}}catch(e){}
+}
+
+// ── Wake lock — keeps screen on ───────────────────────────────────────────
+let wakeLock=null;
+async function requestWakeLock(){
+  try{if('wakeLock' in navigator){wakeLock=await navigator.wakeLock.request('screen');}}catch(e){}
+}
+function releaseWakeLock(){
+  try{if(wakeLock){wakeLock.release();wakeLock=null;}}catch(e){}
+}
+
+// ── Text-to-speech ────────────────────────────────────────────────────────
+function speak(text){
+  if(!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.rate=0.95;u.pitch=1;u.volume=1;
+  const voices=window.speechSynthesis.getVoices();
+  const preferred=voices.find(v=>v.lang==='en-US'&&v.name.includes('Samantha'))
+    ||voices.find(v=>v.lang.startsWith('en-'))
+    ||voices[0];
+  if(preferred) u.voice=preferred;
+  window.speechSynthesis.speak(u);
+}
+
+// ── Build turn instruction from OSRM step ────────────────────────────────
+function buildInstruction(step){
+  if(!step) return '';
+  const{type,modifier,name}=step;
+  const road=name?` onto ${name}`:'';
+  if(type==='depart') return name?`Head ${modifier||'forward'} on ${name}`:'Starting route';
+  if(type==='arrive') return 'You have arrived';
+  if(type==='turn'){
+    if(modifier==='left') return `Turn left${road}`;
+    if(modifier==='right') return `Turn right${road}`;
+    if(modifier==='straight') return `Continue straight${road}`;
+    if(modifier==='slight left') return `Bear left${road}`;
+    if(modifier==='slight right') return `Bear right${road}`;
+    if(modifier==='sharp left') return `Turn sharp left${road}`;
+    if(modifier==='sharp right') return `Turn sharp right${road}`;
+    return `Turn${road}`;
+  }
+  if(type==='continue') return `Continue${name?` on ${name}`:''}`;
+  if(type==='roundabout'||type==='rotary') return `Take the roundabout${name?`, exit onto ${name}`:''}`;
+  if(type==='merge') return `Merge${road}`;
+  if(type==='fork'){
+    if(modifier&&modifier.includes('left')) return `Keep left${road}`;
+    if(modifier&&modifier.includes('right')) return `Keep right${road}`;
+  }
+  return `Continue${name?` on ${name}`:''}`;
+}
+
 function startNav(){
   if(!navigator.geolocation){toast('GPS not available on this device','err');return;}
   S.navActive=true;
+  S.navStepIdx=0;
   const btn=document.getElementById('btn-nav');
   btn.textContent='■ Stop Navigation';btn.classList.add('active');
-  document.getElementById('nav-label').textContent='Navigating…';
-  document.getElementById('nav-sub').textContent='Stay on the red route line';
+  document.getElementById('nav-label').textContent='Navigating';
+  document.getElementById('nav-sub').textContent='Getting your location…';
   document.getElementById('nav-dot').classList.add('pulse');
+
+  // Save route so page reload can restore it
+  try{localStorage.setItem('rd_nav_route',JSON.stringify({coords:S.coords,steps:S.steps,meta:S.meta}));}catch(e){}
+
+  requestWakeLock();
+  startSilentAudio();
+
+  // Announce start after short delay so speech is ready
+  setTimeout(()=>{
+    const first=S.steps&&S.steps[0];
+    speak(first?buildInstruction(first):'Starting navigation. Follow the route on the map.');
+  },800);
 
   S.navWatchId=navigator.geolocation.watchPosition(
     pos=>updatePosition(pos.coords.latitude,pos.coords.longitude),
     err=>toast('GPS error: '+err.message,'err'),
-    {enableHighAccuracy:true,maximumAge:3000,timeout:10000}
+    {enableHighAccuracy:true,maximumAge:2000,timeout:10000}
   );
 }
 
 function stopNav(){
   if(S.navWatchId) navigator.geolocation.clearWatch(S.navWatchId);
   S.navWatchId=null;S.navActive=false;
+  releaseWakeLock();
+  stopSilentAudio();
+  window.speechSynthesis&&window.speechSynthesis.cancel();
   if(S.userMarker){dmap.removeLayer(S.userMarker);S.userMarker=null;}
   if(S.userMarkerM&&mmap){mmap.removeLayer(S.userMarkerM);S.userMarkerM=null;}
   const btn=document.getElementById('btn-nav');
@@ -933,6 +1121,7 @@ function stopNav(){
   document.getElementById('nav-sub').textContent='GPS will track your position on the map';
   document.getElementById('nav-dot').classList.remove('pulse');
   document.getElementById('off-route-alert').style.display='none';
+  try{localStorage.removeItem('rd_nav_route');}catch(e){}
 }
 
 function userIcon(){
@@ -942,33 +1131,81 @@ function userIcon(){
   });
 }
 
+let lastOffRoute=false;
+let lastTurnAnnounce=-1;
+
 function updatePosition(lat,lon){
-  // Draw/move user marker on both maps
+  // Draw/move user marker
   if(S.userMarker){
     S.userMarker.setLatLng([lat,lon]);
-    S.userMarkerM && S.userMarkerM.setLatLng([lat,lon]);
+    S.userMarkerM&&S.userMarkerM.setLatLng([lat,lon]);
   } else {
     S.userMarker=L.marker([lat,lon],{icon:userIcon(),zIndexOffset:200}).addTo(dmap);
     if(mmap) S.userMarkerM=L.marker([lat,lon],{icon:userIcon(),zIndexOffset:200}).addTo(mmap);
   }
 
-  // Pan whichever map is visible
   dmap.panTo([lat,lon],{animate:true,duration:0.5});
   if(mmap) mmap.panTo([lat,lon],{animate:true,duration:0.5});
 
-  // Check if off route (within ~50 meters)
+  // Off-route check (within 60m of any route point)
   const onRoute=S.coords&&S.coords.some(([la,lo])=>haversineM(lat,lon,la,lo)<60);
-  document.getElementById('off-route-alert').style.display=onRoute?'none':'flex';
-  if(!onRoute){
-    // Vibrate
+  const alertEl=document.getElementById('off-route-alert');
+  if(!onRoute&&onRoute!==lastOffRoute){
+    alertEl.style.display='flex';
     if(navigator.vibrate) navigator.vibrate([200,100,200]);
-    // Sound
     playAlert();
+    speak("You are off route. Return to the highlighted path.");
+  } else if(onRoute){
+    alertEl.style.display='none';
+  }
+  lastOffRoute=!onRoute;
+
+  // ── Turn-by-turn announcement ─────────────────────────────────────────
+  if(S.steps&&S.steps.length>0){
+    // Find the next upcoming step we haven't passed yet
+    let nextIdx=S.navStepIdx;
+    while(nextIdx<S.steps.length-1){
+      const step=S.steps[nextIdx];
+      const distToStep=haversineM(lat,lon,step.lat,step.lon);
+      if(distToStep<25){
+        // Arrived at this step — advance
+        S.navStepIdx=nextIdx+1;
+        nextIdx=S.navStepIdx;
+        // Announce next step
+        const next=S.steps[S.navStepIdx];
+        if(next&&S.navStepIdx!==lastTurnAnnounce){
+          lastTurnAnnounce=S.navStepIdx;
+          speak(buildInstruction(next));
+        }
+      } else if(distToStep<80&&nextIdx!==lastTurnAnnounce){
+        // Approaching — give advance warning
+        lastTurnAnnounce=nextIdx;
+        const instr=buildInstruction(S.steps[nextIdx]);
+        const ft=Math.round(distToStep*3.28084);
+        speak(`In ${ft} feet, ${instr}`);
+        break;
+      } else {
+        break;
+      }
+    }
+
+    // Check if arrived at destination
+    if(S.navStepIdx>=S.steps.length-1){
+      const end=S.coords[S.coords.length-1];
+      if(haversineM(lat,lon,end[0],end[1])<30){
+        speak("You have arrived at your destination.");
+        stopNav();
+        toast("You've arrived! 🎉",'ok');
+        return;
+      }
+    }
   }
 
-  // Update remaining distance
+  // Update nav sub with next instruction + remaining time
   const remaining=distanceToEnd(lat,lon);
-  document.getElementById('nav-sub').textContent=`${remaining} remaining`;
+  const nextStep=S.steps&&S.steps[S.navStepIdx];
+  const nextName=nextStep?buildInstruction(nextStep):'';
+  document.getElementById('nav-sub').textContent=nextName?`${nextName} · ${remaining}`:`${remaining} remaining`;
 }
 
 function haversineM(la1,lo1,la2,lo2){
@@ -1124,6 +1361,23 @@ function toast(msg,type='ok'){
 
 renderFavs();
 renderHistory();
+
+// Restore navigation if page was reloaded mid-session
+(()=>{
+  try{
+    const saved=localStorage.getItem('rd_nav_route');
+    if(saved){
+      const d=JSON.parse(saved);
+      if(d.coords&&d.meta){
+        S.coords=d.coords;S.steps=d.steps||[];S.meta=d.meta;
+        drawBoth(true);updateStats();
+        ['results','nav-sec','export-sec','save-sec'].forEach(id=>document.getElementById(id).style.display='');
+        document.getElementById('map-placeholder').style.display='none';
+        toast('Route restored — tap Start Navigation to resume','ok');
+      }
+    }
+  }catch(e){}
+})();
 
 // ── Theme toggle ──────────────────────────────────────────────────────
 function applyTheme(theme){
